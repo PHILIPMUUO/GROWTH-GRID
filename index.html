@@ -1,0 +1,2637 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Growth Grid Channel</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <style>
+        :root {
+            --primary-blue: #005A9C;
+            --secondary-green: #4CAF50;
+            --accent-orange: #FF9800;
+            --neutral-gray: #F0F0F0;
+            --dark-gray: #333;
+            --light-gray: #AAA;
+            --white: #FFFFFF;
+            --shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+            --shadow-hover: 0 8px 25px rgba(0, 0, 0, 0.12);
+            --border-color: #E0E0E0;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--neutral-gray);
+            color: var(--dark-gray);
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        h1, h2, h3 { color: var(--primary-blue); }
+        a { color: var(--primary-blue); text-decoration: none; transition: color 0.3s ease; }
+        a:hover { color: var(--accent-orange); }
+
+        /* --- UTILITY CLASSES --- */
+        .btn {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            display: inline-block;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.3);
+            transform: translate(-50%, -50%);
+            transition: width 0.6s, height 0.6s;
+        }
+        .btn:hover::before {
+            width: 300px;
+            height: 300px;
+        }
+        .btn-primary { background-color: var(--primary-blue); color: var(--white); }
+        .btn-primary:hover { background-color: #004172; box-shadow: var(--shadow-hover); transform: translateY(-2px); }
+        .btn-secondary { background-color: var(--secondary-green); color: var(--white); }
+        .btn-secondary:hover { background-color: #45a049; box-shadow: var(--shadow-hover); transform: translateY(-2px); }
+        .btn-accent { background-color: var(--accent-orange); color: var(--white); }
+        .btn-accent:hover { background-color: #e68900; box-shadow: var(--shadow-hover); transform: translateY(-2px); }
+        .btn-danger { background-color: #f44336; color: var(--white); }
+        .btn-danger:hover { background-color: #d32f2f; transform: scale(1.05); }
+        .btn-edit { background-color: #2196F3; color: var(--white); }
+        .btn-edit:hover { background-color: #0b7dda; }
+
+        .card {
+            background: var(--white);
+            border-radius: 10px;
+            box-shadow: var(--shadow);
+            padding: 25px;
+            margin-bottom: 20px;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        .card.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        .card:hover {
+            transform: translateY(-10px);
+            box-shadow: var(--shadow-hover);
+        }
+
+        /* --- PERSISTENT NAVIGATION --- */
+        .main-header {
+            background: var(--white);
+            box-shadow: var(--shadow);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            animation: slideDown 0.5s ease-out;
+        }
+        @keyframes slideDown {
+            from { transform: translateY(-100%); }
+            to { transform: translateY(0); }
+        }
+        .main-header nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 0;
+        }
+        .main-header .logo {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: var(--primary-blue);
+            transition: transform 0.3s ease;
+        }
+        .main-header .logo:hover { transform: scale(1.05); }
+        .main-header .logo i { color: var(--secondary-green); margin-right: 10px; }
+        .main-header .nav-links {
+            list-style: none;
+            display: flex;
+            gap: 25px;
+        }
+        .main-header .auth-buttons .btn {
+            margin-left: 10px;
+        }
+
+        /* --- LAYOUT STYLES --- */
+        .app-container {
+            display: flex;
+            min-height: 100vh;
+        }
+        .sidebar {
+            width: 260px;
+            background-color: var(--primary-blue);
+            color: var(--white);
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            transition: transform 0.3s ease;
+        }
+        .sidebar .logo {
+            font-size: 1.8rem;
+            font-weight: bold;
+            margin-bottom: 40px;
+            text-align: center;
+            color: var(--white);
+        }
+        .sidebar nav ul {
+            list-style: none;
+        }
+        .sidebar nav ul li {
+            margin-bottom: 15px;
+        }
+        .sidebar nav ul li a {
+            color: var(--white);
+            display: block;
+            padding: 12px 15px;
+            border-radius: 5px;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+        .sidebar nav ul li a::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            height: 100%;
+            width: 4px;
+            background-color: var(--accent-orange);
+            transform: scaleY(0);
+            transition: transform 0.3s ease;
+        }
+        .sidebar nav ul li a:hover, .sidebar nav ul li a.active {
+            background-color: rgba(255, 255, 255, 0.1);
+            color: var(--accent-orange);
+        }
+        .sidebar nav ul li a.active::before {
+            transform: scaleY(1);
+        }
+        .main-content {
+            flex-grow: 1;
+            padding: 30px;
+            background-color: var(--neutral-gray);
+            overflow-y: auto;
+        }
+        .content-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            border-bottom: 2px solid var(--white);
+            padding-bottom: 15px;
+        }
+        .content-header h2 {
+            font-size: 2.2rem;
+        }
+
+        /* --- PUBLIC HOMEPAGE --- */
+        #public-homepage {
+            display: block;
+        }
+        .hero {
+            background: linear-gradient(rgba(0, 90, 156, 0.7), rgba(0, 90, 156, 0.7)), url('https://images.unsplash.com/photo-1506905925346-21bda4d32df4?ixlib=rb-4.0.3&q=85&fm=jpg&crop=entropy&cs=srgb&w=1600') no-repeat center center/cover;
+            color: var(--white);
+            text-align: center;
+            padding: 150px 20px;
+            position: relative;
+            background-attachment: fixed;
+            will-change: transform;
+        }
+        .hero h1 { font-size: 3.5rem; color: var(--white); margin-bottom: 1rem; animation: fadeInUp 1s ease-out; }
+        .hero p { font-size: 1.2rem; max-width: 600px; margin: 0 auto 2rem; animation: fadeInUp 1s ease-out 0.2s; animation-fill-mode: both; }
+        .hero-buttons { animation: fadeInUp 1s ease-out 0.4s; animation-fill-mode: both; }
+
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* --- New Homepage Sections --- */
+        .cta-section {
+            padding: 60px 0;
+            text-align: center;
+        }
+        .cta-section .container {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+        .cta-card {
+            background: var(--white);
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: var(--shadow);
+            max-width: 300px;
+            transition: transform 0.3s ease;
+        }
+        .cta-card:hover {
+            transform: translateY(-10px);
+        }
+        .cta-card h3 {
+            margin-bottom: 15px;
+        }
+        .cta-card p {
+            color: var(--light-gray);
+        }
+        .cta-card .btn {
+            margin-top: 20px;
+            width: 100%;
+        }
+
+        .stats-section {
+            padding: 60px 0;
+            background-color: var(--primary-blue);
+            color: var(--white);
+            text-align: center;
+        }
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 30px;
+        }
+        .stat-item {
+            padding: 20px;
+            transition: transform 0.3s ease;
+        }
+        .stat-item:hover {
+            transform: scale(1.1);
+        }
+        .stat-item i {
+            font-size: 3rem;
+            color: var(--accent-orange);
+            margin-bottom: 15px;
+        }
+        .stat-item h3 {
+            font-size: 2.5rem;
+            color: var(--white);
+            margin: 0;
+        }
+        .stat-item p {
+            font-size: 1.1rem;
+            color: var(--neutral-gray);
+        }
+
+        .about-section {
+            padding: 80px 0;
+        }
+        .about-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 40px;
+            align-items: center;
+        }
+        .about-text h2 {
+            font-size: 2.5rem;
+            margin-bottom: 20px;
+        }
+        .about-text p {
+            font-size: 1.1rem;
+            line-height: 1.8;
+            color: var(--dark-gray);
+            margin-bottom: 20px;
+        }
+        .about-image img {
+            width: 100%;
+            border-radius: 10px;
+            box-shadow: var(--shadow-hover);
+            transition: transform 0.5s ease;
+        }
+        .about-image img:hover {
+            transform: scale(1.03);
+        }
+        .motto {
+            font-style: italic;
+            font-size: 1.3rem;
+            color: var(--primary-blue);
+            border-left: 4px solid var(--accent-orange);
+            padding-left: 20px;
+            margin-top: 30px;
+        }
+
+        .contact-section {
+            padding: 80px 0;
+            background-color: var(--neutral-gray);
+        }
+        .contact-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 40px;
+        }
+        .contact-info .info-item {
+            display: flex;
+            align-items: flex-start;
+            margin-bottom: 30px;
+            transition: transform 0.3s ease;
+        }
+        .contact-info .info-item:hover {
+            transform: translateX(10px);
+        }
+        .contact-info .info-item i {
+            font-size: 1.5rem;
+            color: var(--secondary-green);
+            margin-right: 20px;
+            margin-top: 5px;
+        }
+        .contact-form .form-group {
+            margin-bottom: 20px;
+        }
+        .contact-form .form-group input,
+        .contact-form .form-group textarea {
+            width: 100%;
+            padding: 15px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 1rem;
+            transition: border-color 0.3s ease;
+        }
+        .contact-form .form-group input:focus,
+        .contact-form .form-group textarea:focus {
+            border-color: var(--primary-blue);
+            outline: none;
+        }
+        .contact-form .form-group textarea {
+            resize: vertical;
+            height: 150px;
+        }
+
+        .posts-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            margin-top: 40px;
+        }
+        .post-card {
+            display: flex;
+            flex-direction: column;
+        }
+        .post-card img, .post-card video {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            border-radius: 10px 10px 0 0;
+        }
+        .post-card-content {
+            padding: 20px;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+        }
+        .post-card-content .tag {
+            color: var(--secondary-green);
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+        .post-card-content h3 {
+            margin: 10px 0;
+            font-size: 1.3rem;
+        }
+        .post-card-content p {
+            color: var(--light-gray);
+            flex-grow: 1;
+        }
+        .post-card-content .post-media {
+            margin-top: 15px;
+        }
+        .post-card-content .post-media img, .post-card-content .post-media video {
+            max-width: 100%;
+            border-radius: 5px;
+        }
+        
+        /* --- TABLE STYLES FOR ADMIN PAGES --- */
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            background-color: var(--white);
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: var(--shadow);
+        }
+        .data-table thead {
+            background-color: var(--primary-blue);
+            color: var(--white);
+        }
+        .data-table th, .data-table td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+        }
+        .data-table tbody tr {
+            transition: background-color 0.2s ease;
+        }
+        .data-table tbody tr:hover {
+            background-color: var(--neutral-gray);
+        }
+        .data-table .btn {
+            padding: 8px 12px;
+            font-size: 0.9rem;
+            margin-right: 5px;
+        }
+
+        /* --- SINGLE POST PAGE --- */
+        .single-post-container {
+            max-width: 800px;
+            margin: 40px auto;
+            padding: 40px;
+            background: var(--white);
+            border-radius: 10px;
+            box-shadow: var(--shadow-hover);
+        }
+        .single-post-container .post-meta {
+            font-size: 0.9rem;
+            color: var(--light-gray);
+            margin-bottom: 20px;
+        }
+        .single-post-container .post-media img, .single-post-container .post-media video {
+            max-width: 100%;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+
+        /* --- POWERFUL FOOTER --- */
+        .main-footer {
+            background: linear-gradient(to right, #1a2a3a, #2c3e50);
+            color: var(--light-gray);
+            padding: 60px 0 20px;
+        }
+        .footer-content {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 40px;
+            margin-bottom: 40px;
+        }
+        .footer-widget h3 {
+            color: var(--white);
+            font-size: 1.5rem;
+            margin-bottom: 25px;
+            position: relative;
+            padding-bottom: 10px;
+        }
+        .footer-widget h3::after {
+            content: '';
+            position: absolute;
+            left: 0;
+            bottom: 0;
+            width: 50px;
+            height: 3px;
+            background-color: var(--accent-orange);
+        }
+        .footer-widget p {
+            line-height: 1.8;
+        }
+        .footer-widget ul {
+            list-style: none;
+        }
+        .footer-widget ul li {
+            margin-bottom: 12px;
+            transition: transform 0.2s ease;
+        }
+        .footer-widget ul li:hover {
+            transform: translateX(5px);
+        }
+        .footer-widget ul li a {
+            color: var(--light-gray);
+            transition: color 0.3s ease;
+        }
+        .footer-widget ul li a:hover {
+            color: var(--accent-orange);
+        }
+        .footer-widget .social-links a {
+            display: inline-block;
+            width: 40px;
+            height: 40px;
+            line-height: 40px;
+            text-align: center;
+            background-color: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            margin-right: 10px;
+            font-size: 1.2rem;
+            transition: all 0.3s ease;
+        }
+        .footer-widget .social-links a:hover {
+            background-color: var(--accent-orange);
+            color: var(--white);
+            transform: translateY(-5px);
+        }
+        .footer-bottom {
+            text-align: center;
+            padding-top: 20px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            font-size: 0.9rem;
+        }
+
+        /* --- FORMS & MODALS --- */
+        .form-group {
+            margin-bottom: 20px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+        .form-group input, .form-group textarea, .form-group select {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 1rem;
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+        }
+        .form-group input:focus, .form-group textarea:focus, .form-group select:focus {
+            border-color: var(--primary-blue);
+            box-shadow: 0 0 5px rgba(0, 90, 156, 0.3);
+            outline: none;
+        }
+        .form-group textarea { resize: vertical; }
+
+        .modal {
+            display: none; 
+            position: fixed; 
+            z-index: 2000; 
+            left: 0; 
+            top: 0; 
+            width: 100%; 
+            height: 100%; 
+            overflow: auto; 
+            background-color: rgba(0,0,0,0.5);
+            animation: fadeIn 0.4s ease;
+        }
+        .modal-content {
+            background-color: var(--white);
+            margin: 5% auto; 
+            padding: 30px;
+            border-radius: 10px;
+            width: 90%; 
+            max-width: 500px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.3);
+            animation: slideUp 0.4s ease;
+        }
+        @keyframes slideUp {
+            from { transform: translateY(50px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        .close {
+            color: var(--light-gray);
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: color 0.3s ease;
+        }
+        .close:hover { color: var(--dark-gray); }
+
+        /* --- CHAT STYLES (WhatsApp-like) --- */
+        .chat-app-container {
+            display: flex;
+            height: 65vh;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: var(--shadow-hover);
+        }
+        .chat-user-list {
+            width: 30%;
+            background-color: #2b3a4b;
+            color: var(--white);
+            overflow-y: auto;
+        }
+        .chat-user-list .user-item {
+            padding: 15px;
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+            border-bottom: 1px solid #34495e;
+        }
+        .chat-user-list .user-item:hover, .chat-user-list .user-item.active {
+            background-color: #34495e;
+        }
+        .chat-user-list .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: var(--secondary-green);
+            color: var(--white);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 15px;
+            font-weight: bold;
+        }
+        .chat-user-list .user-info h4 { margin: 0; font-size: 1rem; }
+        .chat-user-list .user-info p { margin: 0; font-size: 0.8rem; color: #bdc3c7; }
+
+        .chat-window {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            background: #e5ddd5;
+            background-image: url('https://user-images.githubusercontent.com/15075759/28719144-86dc0f70-73b1-11e7-911d-60d70fcded21.png');
+        }
+        .chat-header {
+            background-color: #075e54;
+            color: var(--white);
+            padding: 15px;
+            font-weight: bold;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .chat-messages {
+            flex-grow: 1;
+            padding: 20px;
+            overflow-y: auto;
+        }
+        .message {
+            margin-bottom: 15px;
+            display: flex;
+            flex-direction: column;
+            animation: messageSlideIn 0.3s ease-out;
+        }
+        @keyframes messageSlideIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .message.sent {
+            align-items: flex-end;
+        }
+        .message.received {
+            align-items: flex-start;
+        }
+        .message-bubble {
+            max-width: 70%;
+            padding: 10px 15px;
+            border-radius: 18px;
+            line-height: 1.4;
+            position: relative;
+        }
+        .message.sent .message-bubble {
+            background-color: #dcf8c6;
+            color: var(--dark-gray);
+        }
+        .message.received .message-bubble {
+            background-color: var(--white);
+            color: var(--dark-gray);
+        }
+        .chat-input-area {
+            display: flex;
+            padding: 10px;
+            background-color: #f0f0f0;
+        }
+        .chat-input-area input {
+            flex-grow: 1;
+            border: none;
+            border-radius: 20px;
+            padding: 10px 15px;
+            margin-right: 10px;
+        }
+        .chat-input-area button {
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        /* --- RICH TEXT EDITOR (SIMULATED) --- */
+        .editor-toolbar {
+            border: 1px solid #ccc;
+            border-bottom: none;
+            padding: 10px;
+            background-color: #f9f9f9;
+            border-radius: 5px 5px 0 0;
+        }
+        .editor-toolbar button {
+            background: none;
+            border: none;
+            font-size: 1rem;
+            padding: 5px 10px;
+            cursor: pointer;
+            margin-right: 5px;
+            border-radius: 3px;
+            transition: background-color 0.2s ease;
+        }
+        .editor-toolbar button:hover {
+            background-color: #e9e9e9;
+        }
+        #post-content-editor {
+            border: 1px solid #ccc;
+            border-radius: 0 0 5px 5px;
+            min-height: 300px;
+            padding: 15px;
+        }
+        
+        /* --- DASHBOARD CARDS --- */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 30px;
+        }
+        .dashboard-card {
+            background: var(--white);
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: var(--shadow);
+            display: flex;
+            align-items: center;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .dashboard-card:hover {
+            transform: translateY(-10px);
+            box-shadow: var(--shadow-hover);
+        }
+        .dashboard-card-icon {
+            font-size: 3rem;
+            margin-right: 20px;
+        }
+        .dashboard-card-info h3 {
+            font-size: 2rem;
+            margin: 0;
+            color: var(--dark-gray);
+        }
+        .dashboard-card-info p {
+            margin: 5px 0 0;
+            color: var(--light-gray);
+        }
+        .dashboard-card:nth-child(1) .dashboard-card-icon { color: var(--secondary-green); }
+        .dashboard-card:nth-child(2) .dashboard-card-icon { color: var(--accent-orange); }
+        .dashboard-card:nth-child(3) .dashboard-card-icon { color: var(--primary-blue); }
+        
+        /* --- CONNECTION REQUESTS --- */
+        .connection-list {
+            list-style: none;
+        }
+        .connection-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px;
+            border-bottom: 1px solid var(--border-color);
+        }
+        .connection-item-info {
+            display: flex;
+            align-items: center;
+        }
+        .connection-item-info .avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background-color: var(--accent-orange);
+            color: var(--white);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 15px;
+            font-size: 1.2rem;
+            font-weight: bold;
+        }
+        .connection-item-info h4 {
+            margin: 0;
+        }
+        .connection-item-info p {
+            margin: 0;
+            color: var(--light-gray);
+            font-size: 0.9rem;
+        }
+        .connection-actions .btn {
+            margin-left: 10px;
+        }
+        
+        /* --- RESPONSIVE DESIGN --- */
+        @media (max-width: 992px) {
+            .about-content, .contact-content { grid-template-columns: 1fr; }
+            .hero { padding: 100px 20px; }
+            .cta-section .container { flex-direction: column; align-items: center; }
+        }
+        @media (max-width: 768px) {
+            .sidebar {
+                position: fixed;
+                left: 0;
+                top: 0;
+                height: 100%;
+                z-index: 1500;
+                transform: translateX(-100%);
+            }
+            .sidebar.active {
+                transform: translateX(0);
+            }
+            .main-content {
+                margin-left: 0;
+            }
+            .main-header .nav-links { display: none; }
+            .hero h1 { font-size: 2.5rem; }
+            .posts-grid { grid-template-columns: 1fr; }
+            .data-table thead { display: none; }
+            .data-table, .data-table tbody, .data-table tr, .data-table td {
+                display: block;
+                width: 100%;
+            }
+            .data-table tr {
+                margin-bottom: 20px;
+                border: 1px solid #ccc;
+                border-radius: 5px;
+            }
+            .data-table td {
+                text-align: right;
+                padding-left: 50%;
+                position: relative;
+            }
+            .data-table td::before {
+                content: attr(data-label);
+                position: absolute;
+                left: 15px;
+                width: calc(50% - 30px);
+                padding-right: 10px;
+                text-align: left;
+                font-weight: bold;
+                color: var(--primary-blue);
+            }
+            .chat-app-container {
+                flex-direction: column;
+                height: 80vh;
+            }
+            .chat-user-list {
+                width: 100%;
+                height: 200px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- =================== PERSISTENT NAVIGATION =================== -->
+    <header class="main-header">
+        <nav class="container">
+            <a href="#" class="logo" onclick="goToHomePage()"><i class="fa-solid fa-grid"></i> Growth Grid</a>
+            <ul class="nav-links">
+                <li><a href="#" onclick="goToHomePage()">Home</a></li>
+                <li><a href="#" onclick="showPublicPostsPage()">Posts</a></li>
+                <li><a href="#" onclick="showPublicEventsPage()">Events</a></li>
+                <li><a href="#contact">Contact</a></li>
+            </ul>
+            <div class="auth-buttons" id="header-auth-buttons">
+                <button class="btn btn-primary" onclick="showModal('loginModal')">Login</button>
+                <button class="btn btn-secondary" onclick="showModal('signupModal')">Request Membership</button>
+            </div>
+        </nav>
+    </header>
+
+    <!-- =================== PUBLIC HOMEPAGE =================== -->
+    <div id="public-homepage">
+        <main>
+            <section id="home" class="hero">
+                <h1>Grow Mind. Strengthen Heart.</h1>
+                <p>A transformational platform guiding you toward personal growth, emotional healing, and a life of purpose.</p>
+                <div class="hero-buttons">
+                    <button class="btn btn-accent" style="font-size: 1.2rem; padding: 15px 30px;" onclick="showPublicPostsPage()">View All Posts</button>
+                </div>
+            </section>
+
+            <!-- CTA Section for Member/Mentor Request -->
+            <section class="cta-section">
+                <div class="container">
+                    <div class="cta-card card visible">
+                        <h3>Join Our Community</h3>
+                        <p>Request to become a member and connect with others on their journey.</p>
+                        <button class="btn btn-secondary" onclick="showModal('signupModal')">Request Membership</button>
+                    </div>
+                    <div class="cta-card card visible">
+                        <h3>Become a Mentor</h3>
+                        <p>Share your wisdom and guide others. Apply to become a mentor today.</p>
+                        <button class="btn btn-accent" onclick="showModal('mentorRequestModal')">Become a Mentor</button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Dynamic Stats Section -->
+            <section class="stats-section">
+                <div class="container">
+                    <div class="stats-grid">
+                        <div class="stat-item">
+                            <i class="fa-solid fa-users"></i>
+                            <h3 id="stat-members">0</h3>
+                            <p>Community Members</p>
+                        </div>
+                        <div class="stat-item">
+                            <i class="fa-solid fa-file-lines"></i>
+                            <h3 id="stat-posts">0</h3>
+                            <p>Encouragements Shared</p>
+                        </div>
+                        <div class="stat-item">
+                            <i class="fa-solid fa-calendar-check"></i>
+                            <h3 id="stat-events">0</h3>
+                            <p>Events Hosted</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- About Us Section -->
+            <section id="about" class="about-section container">
+                <div class="about-content">
+                    <div class="about-text">
+                        <h2>About Growth Grid Channel</h2>
+                        <p>We are a transformational platform dedicated to guiding young people toward personal growth, emotional healing, and living a life of purpose. We exist to help individuals reshape their mindset, thrive through limiting beliefs, and embrace life with positivity and faith.</p>
+                        <p>Our content speaks directly to realities of today’s youth, navigating relationships, mental health, identity, and life decisions through faith-centered guidance and practical wisdom.</p>
+                        <div class="motto">
+                            "Grow the Mind. Strengthen the Heart. Live with Faith."
+                        </div>
+                    </div>
+                    <div class="about-image">
+                        <img src="https://images.unsplash.com/photo-1521791136064-7986c2920216?ixlib=rb-4.0.3&q=85&fm=jpg&crop=entropy&cs=srgb&w=800" alt="Community discussion">
+                    </div>
+                </div>
+            </section>
+
+            <!-- Contact Us Section (Now Membership Request) -->
+            <section id="contact" class="contact-section">
+                <div class="container">
+                    <div class="content-header">
+                        <h2>Request Membership</h2>
+                    </div>
+                    <div class="contact-content">
+                        <div class="contact-info">
+                            <div class="info-item">
+                                <i class="fa-solid fa-envelope"></i>
+                                <div>
+                                    <h4>Email</h4>
+                                    <p>hello@growthgridchannel.com</p>
+                                </div>
+                            </div>
+                            <div class="info-item">
+                                <i class="fa-solid fa-phone"></i>
+                                <div>
+                                    <h4>Phone</h4>
+                                    <p>+1 (234) 567-8900</p>
+                                </div>
+                            </div>
+                            <div class="info-item">
+                                <i class="fa-brands fa-whatsapp"></i>
+                                <div>
+                                    <h4>WhatsApp</h4>
+                                    <p><a href="https://wa.me/1234567890" target="_blank" style="color: var(--secondary-green); font-weight: bold;">Click to Chat</a></p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="contact-form card">
+                            <h3>Fill out the form to request access</h3>
+                            <form id="membership-request-form">
+                                <div class="form-group">
+                                    <label for="signup-name">Full Name</label>
+                                    <input type="text" id="signup-name" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="signup-email">Email</label>
+                                    <input type="email" id="signup-email" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="signup-needs">Why do you want to join? (Optional)</label>
+                                    <textarea id="signup-needs" rows="4"></textarea>
+                                </div>
+                                <button type="submit" class="btn btn-primary">Submit Request</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <!-- Public Posts Page (Hidden by default) -->
+        <section id="public-posts-page" class="container" style="display:none;">
+             <div class="content-header">
+                <h2>All Posts</h2>
+                <button class="btn btn-secondary" onclick="goToHomePage()">&larr; Back to Home</button>
+            </div>
+            <div id="public-posts-list" class="posts-grid">
+                <!-- Posts will be dynamically inserted here -->
+            </div>
+        </section>
+
+        <!-- Public Events Page (Hidden by default) -->
+        <section id="public-events-page" class="container" style="display:none;">
+             <div class="content-header">
+                <h2>Upcoming Events</h2>
+                <button class="btn btn-secondary" onclick="goToHomePage()">&larr; Back to Home</button>
+            </div>
+            <div id="public-events-list">
+                <!-- Events will be dynamically inserted here -->
+            </div>
+        </section>
+
+        <!-- Single Post Page (Hidden by default) -->
+        <section id="single-post-page" class="container" style="display:none;">
+            <div class="single-post-container" id="single-post-content">
+                <!-- Post content will be dynamically inserted here -->
+            </div>
+        </section>
+
+        <!-- Powerful Footer -->
+        <footer class="main-footer">
+            <div class="container">
+                <div class="footer-content">
+                    <div class="footer-widget">
+                        <h3>Growth Grid Channel</h3>
+                        <p>Your partner in journey of personal growth, emotional healing, and living a life of purpose. We believe no one should walk it alone.</p>
+                        <div class="social-links">
+                            <a href="#" title="Facebook"><i class="fab fa-facebook-f"></i></a>
+                            <a href="#" title="Twitter"><i class="fab fa-twitter"></i></a>
+                            <a href="#" title="Instagram"><i class="fab fa-instagram"></i></a>
+                            <a href="#" title="YouTube"><i class="fab fa-youtube"></i></a>
+                        </div>
+                    </div>
+                    <div class="footer-widget">
+                        <h3>Quick Links</h3>
+                        <ul>
+                            <li><a href="#about">About Us</a></li>
+                            <li><a href="#" onclick="showPublicPostsPage()">All Posts</a></li>
+                            <li><a href="#" onclick="showPublicEventsPage()">Events</a></li>
+                            <li><a href="#">Become a Mentor</a></li>
+                            <li><a href="#">Privacy Policy</a></li>
+                        </ul>
+                    </div>
+                    <div class="footer-widget">
+                        <h3>Our Services</h3>
+                        <ul>
+                            <li><a href="#">Personalized Guidance</a></li>
+                            <li><a href="#">Group Mentorship</a></li>
+                            <li><a href="#">Workshops & Seminars</a></li>
+                            <li><a href="#">Resource Library</a></li>
+                        </ul>
+                    </div>
+                    <div class="footer-widget">
+                        <h3>Contact Info</h3>
+                        <ul>
+                            <li><i class="fa-solid fa-envelope"></i> hello@growthgridchannel.com</li>
+                            <li><i class="fa-solid fa-phone"></i> +1 (234) 567-8900</li>
+                            <li><i class="fa-solid fa-map-marker-alt"></i> 123 Growth Lane, Purpose City</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="footer-bottom">
+                    <p>&copy; <span id="current-year"></span> Growth Grid Channel. All Rights Reserved. Made with <i class="fa-solid fa-heart" style="color: var(--accent-orange);"></i> and Purpose.</p>
+                </div>
+            </div>
+        </footer>
+    </div>
+
+    <!-- =================== ADMIN PORTAL =================== -->
+    <div id="admin-portal" class="app-container" style="display: none;">
+        <aside class="sidebar">
+            <div class="logo"><i class="fa-solid fa-grid"></i> Admin</div>
+            <nav>
+                <ul>
+                    <li><a href="#" onclick="showAdminSection('dashboard', this)"><i class="fa-solid fa-chart-line"></i> Dashboard</a></li>
+                    <li><a href="#" onclick="showAdminSection('create-post', this)"><i class="fa-solid fa-plus"></i> Create Post</a></li>
+                    <li><a href="#" onclick="showAdminSection('manage-posts', this)"><i class="fa-solid fa-file-lines"></i> Manage Posts</a></li>
+                    <li><a href="#" onclick="showAdminSection('schedule-event', this)"><i class="fa-solid fa-calendar-plus"></i> Schedule Event</a></li>
+                    <li><a href="#" onclick="showAdminSection('manage-members', this)"><i class="fa-solid fa-users"></i> Manage Members</a></li>
+                    <li><a href="#" onclick="showAdminSection('manage-mentors', this)"><i class="fa-solid fa-chalkboard-teacher"></i> Manage Mentors</a></li>
+                    <li><a href="#" onclick="showAdminSection('chat', this)"><i class="fa-solid fa-comments"></i> Chat</a></li>
+                    <li><a href="#" onclick="logout()"><i class="fa-solid fa-right-from-bracket"></i> Logout</a></li>
+                </ul>
+            </nav>
+        </aside>
+        <main class="main-content">
+            <!-- Dashboard -->
+            <div id="dashboard" class="section">
+                <div class="content-header"><h2>Admin Dashboard</h2></div>
+                <div class="dashboard-grid">
+                    <div class="dashboard-card card visible">
+                        <div class="dashboard-card-icon"><i class="fa-solid fa-users"></i></div>
+                        <div class="dashboard-card-info">
+                            <h3 id="total-members">0</h3>
+                            <p>Total Members</p>
+                        </div>
+                    </div>
+                    <div class="dashboard-card card visible">
+                        <div class="dashboard-card-icon"><i class="fa-solid fa-file-lines"></i></div>
+                        <div class="dashboard-card-info">
+                            <h3 id="total-posts">0</h3>
+                            <p>Total Posts</p>
+                        </div>
+                    </div>
+                    <div class="dashboard-card card visible">
+                        <div class="dashboard-card-icon"><i class="fa-solid fa-calendar-check"></i></div>
+                        <div class="dashboard-card-info">
+                            <h3 id="total-events">0</h3>
+                            <p>Total Events</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Create Post -->
+            <div id="create-post" class="section" style="display:none;">
+                <div class="content-header"><h2>Create a New Post</h2></div>
+                <div class="card">
+                    <form id="new-post-form">
+                        <input type="hidden" id="edit-post-id">
+                        <div class="form-group">
+                            <label for="post-title">Title</label>
+                            <input type="text" id="post-title" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="post-category">Category</label>
+                            <select id="post-category">
+                                <option value="Faith">Faith</option>
+                                <option value="Mindset">Mindset</option>
+                                <option value="Relationships">Relationships</option>
+                                <option value="Emotional Health">Emotional Health</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Content</label>
+                            <div class="editor-toolbar">
+                                <button type="button" onclick="formatText('bold')"><i class="fa-solid fa-bold"></i></button>
+                                <button type="button" onclick="formatText('italic')"><i class="fa-solid fa-italic"></i></button>
+                                <button type="button" onclick="formatText('underline')"><i class="fa-solid fa-underline"></i></button>
+                                <button type="button" onclick="addLink()"><i class="fa-solid fa-link"></i></button>
+                            </div>
+                            <div id="post-content-editor" contenteditable="true"></div>
+                        </div>
+                        <div class="form-group">
+                            <label for="post-media-upload">Upload Image or Video</label>
+                            <input type="file" id="post-media-upload" accept="image/*,video/*">
+                        </div>
+                        <button type="submit" class="btn btn-primary" id="submit-post-btn">Publish Post</button>
+                        <button type="button" class="btn btn-secondary" onclick="resetPostForm()" id="cancel-edit-btn" style="display:none; margin-left:10px;">Cancel Edit</button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Manage Posts -->
+            <div id="manage-posts" class="section" style="display:none;">
+                 <div class="content-header"><h2>Manage All Posts</h2></div>
+                 <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Title</th>
+                            <th>Author</th>
+                            <th>Category</th>
+                            <th>Status</th>
+                            <th>Date</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="all-posts-list">
+                        <!-- Posts will be dynamically inserted here -->
+                    </tbody>
+                 </table>
+            </div>
+
+            <!-- Schedule Event -->
+            <div id="schedule-event" class="section" style="display:none;">
+                <div class="content-header"><h2>Schedule a New Event</h2></div>
+                <div class="card">
+                    <form id="new-event-form">
+                        <div class="form-group">
+                            <label for="event-title">Event Title</label>
+                            <input type="text" id="event-title" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="event-date">Date & Time</label>
+                            <input type="datetime-local" id="event-date" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="event-link">Google Meet Link</label>
+                            <input type="url" id="event-link" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="event-description">Description</label>
+                            <textarea id="event-description" rows="4"></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Create Event</button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Manage Members -->
+            <div id="manage-members" class="section" style="display:none;">
+                <div class="content-header"><h2>Manage Members</h2></div>
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Email</th>
+                            <th>Role</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="members-list">
+                        <!-- Members will be dynamically inserted here -->
+                    </tbody>
+                </table>
+            </div>
+            
+            <!-- Manage Mentors -->
+            <div id="manage-mentors" class="section" style="display:none;">
+                <div class="content-header"><h2>Manage Mentors</h2></div>
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Email</th>
+                            <th>Specialty</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="mentors-list">
+                        <!-- Mentors will be dynamically inserted here -->
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Chat -->
+            <div id="chat" class="section" style="display:none;">
+                <div class="content-header"><h2>Chat with Members & Mentors</h2></div>
+                <div class="chat-app-container card">
+                    <div class="chat-user-list" id="chat-user-list">
+                        <!-- Users will be dynamically inserted here -->
+                    </div>
+                    <div class="chat-window" id="chat-window" style="display: none;">
+                        <div class="chat-header">
+                            <span id="chat-user-name">Select a user to start chatting</span>
+                        </div>
+                        <div id="admin-chat-messages" class="chat-messages"></div>
+                        <div class="chat-input-area">
+                            <input type="text" id="admin-chat-input" placeholder="Type a message..." onkeypress="if(event.key==='Enter') adminSendMessage()">
+                            <button class="btn btn-primary" onclick="adminSendMessage()"><i class="fa-solid fa-paper-plane"></i></button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- =================== MEMBER PORTAL =================== -->
+    <div id="member-portal" class="app-container" style="display: none;">
+        <aside class="sidebar">
+            <div class="logo"><i class="fa-solid fa-grid"></i> <span id="member-name-sidebar">Member</span></div>
+            <nav>
+                <ul>
+                    <li><a href="#" onclick="showMemberSection('dashboard', this)"><i class="fa-solid fa-house"></i> Dashboard</a></li>
+                    <li><a href="#" onclick="showMemberSection('view-posts', this)"><i class="fa-solid fa-book-open"></i> View Posts</a></li>
+                    <li><a href="#" onclick="showMemberSection('view-events', this)"><i class="fa-solid fa-calendar"></i> View Events</a></li>
+                    <li><a href="#" onclick="showMemberSection('connect', this)"><i class="fa-solid fa-user-group"></i> Connect</a></li>
+                    <li><a href="#" onclick="showMemberSection('chat', this)"><i class="fa-solid fa-comment-dots"></i> My Chats</a></li>
+                    <li><a href="#" onclick="logout()"><i class="fa-solid fa-right-from-bracket"></i> Logout</a></li>
+                </ul>
+            </nav>
+        </aside>
+        <main class="main-content">
+            <!-- Dashboard -->
+            <div id="member-dashboard" class="section">
+                <div class="content-header"><h2>Welcome, <span id="member-name-main">Member</span>!</h2></div>
+                <div class="card">
+                    <h3>Your Journey Starts Here</h3>
+                    <p>Explore our latest posts and upcoming events, and connect with the community.</p>
+                </div>
+            </div>
+
+            <!-- View Posts -->
+            <div id="member-view-posts" class="section" style="display:none;">
+                <div class="content-header"><h2>All Posts</h2></div>
+                <div id="member-posts-list">
+                    <!-- Posts will be dynamically inserted here -->
+                </div>
+            </div>
+
+            <!-- View Events -->
+            <div id="member-view-events" class="section" style="display:none;">
+                <div class="content-header"><h2>Upcoming Events</h2></div>
+                <div id="member-events-list">
+                    <!-- Events will be dynamically inserted here -->
+                </div>
+            </div>
+
+            <!-- Connect -->
+            <div id="member-connect" class="section" style="display:none;">
+                <div class="content-header"><h2>Connect with Members</h2></div>
+                <div class="card">
+                    <h3>Find and connect with other community members.</h3>
+                    <ul class="connection-list" id="member-connect-list">
+                        <!-- Members will be dynamically inserted here -->
+                    </ul>
+                </div>
+                <div class="card">
+                    <h3>Request a Mentor</h3>
+                    <ul class="connection-list" id="mentor-connect-list">
+                        <!-- Mentors will be dynamically inserted here -->
+                    </ul>
+                </div>
+                <div class="card">
+                    <h3>Your Connection Requests</h3>
+                    <ul class="connection-list" id="member-requests-list">
+                        <!-- Requests will be dynamically inserted here -->
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Chat -->
+            <div id="member-chat" class="section" style="display:none;">
+                <div class="content-header"><h2>My Chats</h2></div>
+                <div class="chat-app-container card">
+                    <div class="chat-user-list" id="member-chat-user-list">
+                        <!-- Connected users will be dynamically inserted here -->
+                    </div>
+                    <div class="chat-window" id="member-chat-window" style="display: none;">
+                        <div class="chat-header">
+                            <span id="member-chat-user-name">Select a chat</span>
+                        </div>
+                        <div id="member-chat-messages" class="chat-messages"></div>
+                        <div class="chat-input-area">
+                            <input type="text" id="member-chat-input" placeholder="Type a message..." onkeypress="if(event.key==='Enter') memberSendMessage()">
+                            <button class="btn btn-primary" onclick="memberSendMessage()"><i class="fa-solid fa-paper-plane"></i></button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- =================== MENTOR PORTAL =================== -->
+    <div id="mentor-portal" class="app-container" style="display: none;">
+        <aside class="sidebar">
+            <div class="logo"><i class="fa-solid fa-chalkboard-teacher"></i> <span id="mentor-name-sidebar">Mentor</span></div>
+            <nav>
+                <ul>
+                    <li><a href="#" onclick="showMentorSection('dashboard', this)"><i class="fa-solid fa-house"></i> Dashboard</a></li>
+                    <li><a href="#" onclick="showMentorSection('create-post', this)"><i class="fa-solid fa-plus"></i> Write Post (For Approval)</a></li>
+                    <li><a href="#" onclick="showMentorSection('my-posts', this)"><i class="fa-solid fa-file-lines"></i> My Posts</a></li>
+                    <li><a href="#" onclick="showMentorSection('view-posts', this)"><i class="fa-solid fa-book-open"></i> View All Posts</a></li>
+                    <li><a href="#" onclick="showMentorSection('view-events', this)"><i class="fa-solid fa-calendar"></i> View Events</a></li>
+                    <li><a href="#" onclick="showMentorSection('connect', this)"><i class="fa-solid fa-user-group"></i> My Mentees</a></li>
+                    <li><a href="#" onclick="showMentorSection('chat', this)"><i class="fa-solid fa-comment-dots"></i> My Chats</a></li>
+                    <li><a href="#" onclick="logout()"><i class="fa-solid fa-right-from-bracket"></i> Logout</a></li>
+                </ul>
+            </nav>
+        </aside>
+        <main class="main-content">
+            <!-- Dashboard -->
+            <div id="mentor-dashboard" class="section">
+                <div class="content-header"><h2>Welcome, <span id="mentor-name-main">Mentor</span>!</h2></div>
+                <div class="card">
+                    <h3>Your Mentor Dashboard</h3>
+                    <p>Write posts for approval and manage your connections with mentees.</p>
+                </div>
+            </div>
+
+            <!-- Create Post (For Approval) -->
+            <div id="mentor-create-post" class="section" style="display:none;">
+                <div class="content-header"><h2>Write a Post (For Approval)</h2></div>
+                <div class="card">
+                    <form id="mentor-new-post-form">
+                        <div class="form-group">
+                            <label for="mentor-post-title">Title</label>
+                            <input type="text" id="mentor-post-title" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="mentor-post-category">Category</label>
+                            <select id="mentor-post-category">
+                                <option value="Faith">Faith</option>
+                                <option value="Mindset">Mindset</option>
+                                <option value="Relationships">Relationships</option>
+                                <option value="Emotional Health">Emotional Health</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Content</label>
+                            <div class="editor-toolbar">
+                                <button type="button" onclick="formatText('bold')"><i class="fa-solid fa-bold"></i></button>
+                                <button type="button" onclick="formatText('italic')"><i class="fa-solid fa-italic"></i></button>
+                                <button type="button" onclick="formatText('underline')"><i class="fa-solid fa-underline"></i></button>
+                                <button type="button" onclick="addLink()"><i class="fa-solid fa-link"></i></button>
+                            </div>
+                            <div id="mentor-post-content-editor" contenteditable="true"></div>
+                        </div>
+                        <div class="form-group">
+                            <label for="mentor-post-media-upload">Upload Image or Video</label>
+                            <input type="file" id="mentor-post-media-upload" accept="image/*,video/*">
+                        </div>
+                        <button type="submit" class="btn btn-primary">Submit for Approval</button>
+                    </form>
+                </div>
+            </div>
+            
+            <!-- My Posts (Pending & Approved) -->
+            <div id="mentor-my-posts" class="section" style="display:none;">
+                <div class="content-header"><h2>My Posts</h2></div>
+                <div id="mentor-my-posts-list">
+                    <!-- Posts will be dynamically inserted here -->
+                </div>
+            </div>
+
+            <!-- View All Posts -->
+            <div id="mentor-view-posts" class="section" style="display:none;">
+                <div class="content-header"><h2>All Posts</h2></div>
+                <div id="mentor-posts-list">
+                    <!-- Posts will be dynamically inserted here -->
+                </div>
+            </div>
+
+            <!-- View Events -->
+            <div id="mentor-view-events" class="section" style="display:none;">
+                <div class="content-header"><h2>Upcoming Events</h2></div>
+                <div id="mentor-events-list">
+                    <!-- Events will be dynamically inserted here -->
+                </div>
+            </div>
+
+            <!-- My Mentees -->
+            <div id="mentor-connect" class="section" style="display:none;">
+                <div class="content-header"><h2>My Mentees</h2></div>
+                <div class="card">
+                    <h3>Manage your connections with mentees.</h3>
+                    <ul class="connection-list" id="mentor-mentee-list">
+                        <!-- Mentees will be dynamically inserted here -->
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Chat -->
+            <div id="mentor-chat" class="section" style="display:none;">
+                <div class="content-header"><h2>My Chats</h2></div>
+                <div class="chat-app-container card">
+                    <div class="chat-user-list" id="mentor-chat-user-list">
+                        <!-- Connected users will be dynamically inserted here -->
+                    </div>
+                    <div class="chat-window" id="mentor-chat-window" style="display: none;">
+                        <div class="chat-header">
+                            <span id="mentor-chat-user-name">Select a chat</span>
+                        </div>
+                        <div id="mentor-chat-messages" class="chat-messages"></div>
+                        <div class="chat-input-area">
+                            <input type="text" id="mentor-chat-input" placeholder="Type a message..." onkeypress="if(event.key==='Enter') mentorSendMessage()">
+                            <button class="btn btn-primary" onclick="mentorSendMessage()"><i class="fa-solid fa-paper-plane"></i></button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- =================== MODALS =================== -->
+    <!-- Login Modal -->
+    <div id="loginModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('loginModal')">&times;</span>
+            <h2>Login</h2>
+            <form id="login-form">
+                <div class="form-group">
+                    <label for="login-email">Email</label>
+                    <input type="email" id="login-email" required>
+                </div>
+                <div class="form-group">
+                    <label for="login-password">Password</label>
+                    <input type="password" id="login-password" required>
+                </div>
+                <button type="submit" class="btn btn-primary" style="width: 100%;">Login</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Signup Modal (Now Membership Request) -->
+    <div id="signupModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('signupModal')">&times;</span>
+            <h2>Request Membership</h2>
+            <form id="signup-form">
+                <div class="form-group">
+                    <label for="signup-name">Full Name</label>
+                    <input type="text" id="signup-name" required>
+                </div>
+                <div class="form-group">
+                    <label for="signup-email">Email</label>
+                    <input type="email" id="signup-email" required>
+                </div>
+                <div class="form-group">
+                    <label for="signup-needs">Why do you want to join? (Optional)</label>
+                    <textarea id="signup-needs" rows="4"></textarea>
+                </div>
+                <button type="submit" class="btn btn-secondary" style="width: 100%;">Submit Request</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Mentor Request Modal -->
+    <div id="mentorRequestModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('mentorRequestModal')">&times;</span>
+            <h2>Become a Mentor</h2>
+            <form id="mentor-request-form">
+                <div class="form-group">
+                    <label for="mentor-request-name">Full Name</label>
+                    <input type="text" id="mentor-request-name" required>
+                </div>
+                <div class="form-group">
+                    <label for="mentor-request-email">Email</label>
+                    <input type="email" id="mentor-request-email" required>
+                </div>
+                <div class="form-group">
+                    <label for="mentor-request-specialty">Area of Specialty</label>
+                    <input type="text" id="mentor-request-specialty" placeholder="e.g., Youth Counseling, Faith Guidance" required>
+                </div>
+                <div class="form-group">
+                    <label for="mentor-request-needs">Why do you want to be a mentor? (Optional)</label>
+                    <textarea id="mentor-request-needs" rows="4"></textarea>
+                </div>
+                <button type="submit" class="btn btn-accent" style="width: 100%;">Submit Application</button>
+            </form>
+        </div>
+    </div>
+
+<script>
+    // --- DATA MANAGEMENT (using localStorage) ---
+    const DB = {
+        posts: JSON.parse(localStorage.getItem('posts')) || [],
+        members: JSON.parse(localStorage.getItem('members')) || [],
+        mentors: JSON.parse(localStorage.getItem('mentors')) || [],
+        events: JSON.parse(localStorage.getItem('events')) || [],
+        messages: JSON.parse(localStorage.getItem('messages')) || {}, // { userId: [messages] }
+        connections: JSON.parse(localStorage.getItem('connections')) || [], // { requesterId, addresseeId, status: 'pending' | 'approved' }
+        save: function(key) {
+            localStorage.setItem(key, JSON.stringify(this[key]));
+        }
+    };
+
+    // --- STATE MANAGEMENT ---
+    let currentUser = null;
+    let currentChatUserId = null; // For admin/member/mentor chat
+    const ADMIN_PASSWORD = 'admin123';
+    let editingPostId = null;
+
+    // --- INITIALIZATION ---
+    document.addEventListener('DOMContentLoaded', () => {
+        updatePublicSections();
+        updateFooterYear();
+        setupEventListeners();
+        setupScrollAnimations();
+    });
+
+    function setupEventListeners() {
+        document.getElementById('login-form').addEventListener('submit', handleLogin);
+        document.getElementById('signup-form').addEventListener('submit', handleMembershipRequest);
+        document.getElementById('mentor-request-form').addEventListener('submit', handleMentorRequest);
+        document.getElementById('new-post-form').addEventListener('submit', handleCreateOrUpdatePost);
+        document.getElementById('mentor-new-post-form').addEventListener('submit', handleMentorCreatePost);
+        document.getElementById('new-event-form').addEventListener('submit', handleCreateEvent);
+        
+        // Admin access shortcut
+        document.addEventListener('keydown', (e) => {
+            if (e.ctrlKey && e.shiftKey && e.key === 'A') {
+                const password = prompt('Enter Admin Password:');
+                if (password === ADMIN_PASSWORD) {
+                    currentUser = { name: 'Admin', email: 'admin@gg.com', role: 'admin' };
+                    showPortal('admin');
+                } else {
+                    alert('Incorrect Password.');
+                }
+            }
+        });
+    }
+
+    function setupScrollAnimations() {
+        const observerOptions = {
+            root: null,
+            rootMargin: '0px',
+            threshold: 0.1
+        };
+        const observer = new IntersectionObserver((entries, observer) => {
+            entries.forEach((entry, index) => {
+                if (entry.isIntersecting) {
+                    setTimeout(() => {
+                        entry.target.classList.add('visible');
+                    }, index * 100); // Stagger the animation
+                    observer.unobserve(entry.target);
+                }
+            });
+        }, observerOptions);
+        document.querySelectorAll('.card').forEach(card => {
+            observer.observe(card);
+        });
+    }
+    
+    function updateFooterYear() {
+        document.getElementById('current-year').textContent = new Date().getFullYear();
+    }
+
+    // --- PORTAL & VIEW MANAGEMENT ---
+    function showPortal(portal) {
+        document.getElementById('public-homepage').style.display = 'none';
+        document.getElementById('admin-portal').style.display = 'none';
+        document.getElementById('member-portal').style.display = 'none';
+        document.getElementById('mentor-portal').style.display = 'none';
+        updateHeaderAuthButtons();
+
+        if (portal === 'admin') {
+            document.getElementById('admin-portal').style.display = 'flex';
+            showAdminSection('dashboard');
+            updateAdminDashboard();
+        } else if (portal === 'member') {
+            document.getElementById('member-portal').style.display = 'flex';
+            document.getElementById('member-name-main').textContent = currentUser.name;
+            showMemberSection('dashboard');
+        } else if (portal === 'mentor') {
+            document.getElementById('mentor-portal').style.display = 'flex';
+            document.getElementById('mentor-name-main').textContent = currentUser.name;
+            showMentorSection('dashboard');
+        }
+    }
+
+    function showAdminSection(sectionId, linkElement) {
+        document.querySelectorAll('#admin-portal .section').forEach(sec => sec.style.display = 'none');
+        document.getElementById(sectionId).style.display = 'block';
+        if (linkElement) {
+            document.querySelectorAll('#admin-portal .sidebar a').forEach(link => link.classList.remove('active'));
+            linkElement.classList.add('active');
+        }
+        if (sectionId === 'manage-posts') renderAdminPostsList();
+        if (sectionId === 'manage-members') renderAdminMembersList();
+        if (sectionId === 'manage-mentors') renderAdminMentorsList();
+        if (sectionId === 'chat') renderAdminChatUserList();
+    }
+    
+    function showMemberSection(sectionId, linkElement) {
+        document.querySelectorAll('#member-portal .section').forEach(sec => sec.style.display = 'none');
+        document.getElementById(`member-${sectionId}`).style.display = 'block';
+        if (linkElement) {
+            document.querySelectorAll('#member-portal .sidebar a').forEach(link => link.classList.remove('active'));
+            linkElement.classList.add('active');
+        }
+        if (sectionId === 'view-posts') renderMemberPostsList();
+        if (sectionId === 'view-events') renderMemberEventsList();
+        if (sectionId === 'connect') renderMemberConnectList();
+        if (sectionId === 'chat') renderMemberChatList();
+    }
+    
+    function showMentorSection(sectionId, linkElement) {
+        document.querySelectorAll('#mentor-portal .section').forEach(sec => sec.style.display = 'none');
+        document.getElementById(`mentor-${sectionId}`).style.display = 'block';
+        if (linkElement) {
+            document.querySelectorAll('#mentor-portal .sidebar a').forEach(link => link.classList.remove('active'));
+            linkElement.classList.add('active');
+        }
+        if (sectionId === 'dashboard') {
+            document.getElementById('mentor-name-main').textContent = currentUser.name;
+        }
+        if (sectionId === 'create-post') {
+            document.getElementById('mentor-create-post').style.display = 'block';
+        }
+        if (sectionId === 'my-posts') renderMentorMyPostsList();
+        if (sectionId === 'view-posts') renderMentorPostsList();
+        if (sectionId === 'view-events') renderMentorEventsList();
+        if (sectionId === 'connect') renderMentorConnectList();
+        if (sectionId === 'chat') renderMentorChatList();
+    }
+    
+    function goToHomePage() {
+        hideAllPortals();
+        hideAllPublicPages();
+        document.getElementById('public-homepage').style.display = 'block';
+        document.getElementById('home').style.display = 'block';
+        document.getElementById('about').style.display = 'block';
+        document.getElementById('contact').style.display = 'block';
+        document.getElementById('cta-section').style.display = 'block';
+        document.getElementById('stats-section').style.display = 'block';
+    }
+
+    function showPublicPostsPage() {
+        hideAllPortals();
+        hideAllPublicPages();
+        document.getElementById('public-posts-page').style.display = 'block';
+        renderPublicPostsList();
+    }
+
+    function showPublicEventsPage() {
+        hideAllPortals();
+        hideAllPublicPages();
+        document.getElementById('public-events-page').style.display = 'block';
+        renderPublicEventsList();
+    }
+
+    function hideAllPortals() {
+        document.getElementById('admin-portal').style.display = 'none';
+        document.getElementById('member-portal').style.display = 'none';
+        document.getElementById('mentor-portal').style.display = 'none';
+    }
+
+    function hideAllPublicPages() {
+        document.getElementById('public-posts-page').style.display = 'none';
+        document.getElementById('public-events-page').style.display = 'none';
+        document.getElementById('single-post-page').style.display = 'none';
+    }
+    
+    function updateHeaderAuthButtons() {
+        const authButtons = document.getElementById('header-auth-buttons');
+        if (currentUser) {
+            authButtons.innerHTML = `<button class="btn btn-accent" onclick="logout()">Logout</button>`;
+        } else {
+            authButtons.innerHTML = `
+                <button class="btn btn-primary" onclick="showModal('loginModal')">Login</button>
+                <button class="btn btn-secondary" onclick="showModal('signupModal')">Request Membership</button>
+            `;
+        }
+    }
+
+    // --- AUTHENTICATION ---
+    function handleLogin(e) {
+        e.preventDefault();
+        const email = document.getElementById('login-email').value;
+        const password = document.getElementById('login-password').value;
+
+        const user = DB.members.find(u => u.email === email && u.password === password) || DB.mentors.find(m => m.email === email && m.password === password);
+        if (user) {
+            if (user.status === 'approved') {
+                currentUser = user;
+                showPortal(user.role === 'mentor' ? 'mentor' : 'member');
+                closeModal('loginModal');
+            } else {
+                alert('Your membership is still pending approval. Please wait for an admin to approve your request.');
+            }
+        } else {
+            alert('Invalid email or password.');
+        }
+    }
+
+    function handleMembershipRequest(e) {
+        e.preventDefault();
+        const name = document.getElementById('signup-name').value;
+        const email = document.getElementById('signup-email').value;
+        const needs = document.getElementById('signup-needs').value;
+
+        if (DB.members.some(u => u.email === email)) {
+            alert('A request with this email already exists.');
+            return;
+        }
+
+        const newMember = { id: Date.now(), name, email, needs, role: 'member', status: 'pending', password: null, registrationDate: new Date().toLocaleDateString() };
+        DB.members.push(newMember);
+        DB.save('members');
+        
+        alert('Your membership request has been submitted. You will be notified once an admin approves it.');
+        closeModal('signupModal');
+        e.target.reset();
+    }
+    
+    function handleMentorRequest(e) {
+        e.preventDefault();
+        const name = document.getElementById('mentor-request-name').value;
+        const email = document.getElementById('mentor-request-email').value;
+        const specialty = document.getElementById('mentor-request-specialty').value;
+        const needs = document.getElementById('mentor-request-needs').value;
+
+        if (DB.mentors.some(m => m.email === email)) {
+            alert('An application with this email already exists.');
+            return;
+        }
+
+        const newMentor = { id: Date.now(), name, email, specialty: specialty, needs, role: 'mentor', status: 'pending', password: null, registrationDate: new Date().toLocaleDateString() };
+        DB.mentors.push(newMentor);
+        DB.save('mentors');
+        
+        alert('Your mentor application has been submitted. You will be notified once an admin approves it.');
+        closeModal('mentorRequestModal');
+        e.target.reset();
+    }
+
+    function logout() {
+        currentUser = null;
+        currentChatUserId = null;
+        editingPostId = null;
+        goToHomePage();
+        updateHeaderAuthButtons();
+    }
+
+    // --- POST MANAGEMENT (CRUD) ---
+    function handleCreateOrUpdatePost(e) {
+        e.preventDefault();
+        const title = document.getElementById('post-title').value;
+        const category = document.getElementById('post-category').value;
+        const content = document.getElementById('post-content-editor').innerHTML;
+        const mediaFile = document.getElementById('post-media-upload').files[0];
+        const mediaUrl = mediaFile ? URL.createObjectURL(mediaFile) : null;
+        
+        let mediaHtml = '';
+        if (mediaUrl) {
+            if (mediaFile.type.startsWith('image/')) {
+                mediaHtml = `<img src="${mediaUrl}" alt="Post media" style="max-width: 100%; border-radius: 5px;">`;
+            } else if (mediaFile.type.startsWith('video/')) {
+                mediaHtml = `<video controls style="max-width: 100%; border-radius: 5px;"><source src="${mediaUrl}" type="${mediaFile.type}"></video>`;
+            }
+        }
+
+        if (editingPostId) {
+            // Update existing post
+            const postIndex = DB.posts.findIndex(p => p.id === editingPostId);
+            if (postIndex > -1) {
+                DB.posts[postIndex] = { ...DB.posts[postIndex], title, category, content, media: mediaHtml };
+                DB.save('posts');
+                alert('Post updated successfully!');
+            }
+            resetPostForm();
+        } else {
+            // Create new post
+            const newPost = {
+                id: Date.now(),
+                title,
+                category,
+                content,
+                media: mediaHtml,
+                author: currentUser.name,
+                date: new Date().toLocaleDateString(),
+                status: 'approved' // Admin posts are auto-approved
+            };
+            DB.posts.unshift(newPost);
+            DB.save('posts');
+            alert('Post created successfully!');
+            document.getElementById('new-post-form').reset();
+            document.getElementById('post-content-editor').innerHTML = '';
+        }
+        updatePublicSections();
+    }
+
+    function handleMentorCreatePost(e) {
+        e.preventDefault();
+        const title = document.getElementById('mentor-post-title').value;
+        const category = document.getElementById('mentor-post-category').value;
+        const content = document.getElementById('mentor-post-content-editor').innerHTML;
+        const mediaFile = document.getElementById('mentor-post-media-upload').files[0];
+        const mediaUrl = mediaFile ? URL.createObjectURL(mediaFile) : null;
+        
+        let mediaHtml = '';
+        if (mediaUrl) {
+            if (mediaFile.type.startsWith('image/')) {
+                mediaHtml = `<img src="${mediaUrl}" alt="Post media" style="max-width: 100%; border-radius: 5px;">`;
+            } else if (mediaFile.type.startsWith('video/')) {
+                mediaHtml = `<video controls style="max-width: 100%; border-radius: 5px;"><source src="${mediaUrl}" type="${mediaFile.type}"></video>`;
+            }
+        }
+        
+        const newPost = {
+            id: Date.now(),
+            title,
+            category,
+            content,
+            media: mediaHtml,
+            author: currentUser.name,
+            date: new Date().toLocaleDateString(),
+            status: 'pending' // Mentor posts need approval
+        };
+        DB.posts.unshift(newPost);
+        DB.save('posts');
+        alert('Post submitted for approval!');
+        document.getElementById('mentor-new-post-form').reset();
+        document.getElementById('mentor-post-content-editor').innerHTML = '';
+    }
+
+    function editPost(postId) {
+        const post = DB.posts.find(p => p.id === postId);
+        if (!post) return;
+
+        editingPostId = postId;
+        document.getElementById('edit-post-id').value = postId;
+        document.getElementById('post-title').value = post.title;
+        document.getElementById('post-category').value = post.category;
+        document.getElementById('post-content-editor').innerHTML = post.content;
+
+        document.getElementById('create-post-title').textContent = 'Edit Post';
+        document.getElementById('submit-post-btn').textContent = 'Update Post';
+        document.getElementById('cancel-edit-btn').style.display = 'inline-block';
+
+        showAdminSection('create-post');
+    }
+
+    function resetPostForm() {
+        editingPostId = null;
+        document.getElementById('new-post-form').reset();
+        document.getElementById('post-content-editor').innerHTML = '';
+        document.getElementById('create-post-title').textContent = 'Create a New Post';
+        document.getElementById('submit-post-btn').textContent = 'Publish Post';
+        document.getElementById('cancel-edit-btn').style.display = 'none';
+    }
+
+    function deletePost(postId) {
+        if (confirm('Are you sure you want to delete this post? This action cannot be undone.')) {
+            DB.posts = DB.posts.filter(p => p.id !== postId);
+            DB.save('posts');
+            renderAdminPostsList();
+            updatePublicSections();
+        }
+    }
+
+    function approvePost(postId) {
+        const postIndex = DB.posts.findIndex(p => p.id === postId);
+        if (postIndex > -1) {
+            DB.posts[postIndex].status = 'approved';
+            DB.save('posts');
+            alert('Post approved!');
+            renderAdminPostsList();
+        }
+    }
+
+    function renderAdminPostsList() {
+        const tableBody = document.getElementById('all-posts-list');
+        if (DB.posts.length === 0) {
+            tableBody.innerHTML = '<tr><td colspan="6">No posts yet.</td></tr>';
+            return;
+        }
+        tableBody.innerHTML = DB.posts.map(post => `
+            <tr>
+                <td data-label="Title">${post.title}</td>
+                <td data-label="Author">${post.author}</td>
+                <td data-label="Category">${post.category}</td>
+                <td data-label="Status"><span style="color: ${post.status === 'approved' ? 'var(--secondary-green)' : 'var(--accent-orange)'};">${post.status.toUpperCase()}</span></td>
+                <td data-label="Date">${post.date}</td>
+                <td data-label="Actions">
+                    <button class="btn btn-edit" onclick="editPost(${post.id})">Edit</button>
+                    ${post.status === 'pending' ? `<button class="btn btn-primary" onclick="approvePost(${post.id})">Approve</button>` : ''}
+                    <button class="btn btn-danger" onclick="deletePost(${post.id})">Delete</button>
+                </td>
+            </tr>
+        `).join('');
+    }
+    
+    function renderPublicPostsList() {
+        const container = document.getElementById('public-posts-list');
+        const approvedPosts = DB.posts.filter(p => p.status === 'approved');
+        if (approvedPosts.length === 0) {
+            container.innerHTML = '<p>No posts available yet.</p>';
+            return;
+        }
+        container.innerHTML = approvedPosts.map(post => `
+            <div class="card post-card">
+                <div class="post-card-content">
+                    <span class="tag">${post.category}</span>
+                    <h3>${post.title}</h3>
+                    <p><small>By ${post.author} on ${post.date}</small></p>
+                    <div class="post-media">${post.content.substring(0, 200)}...</div>
+                    ${post.media ? `<div class="post-media">${post.media}</div>` : ''}
+                </div>
+            </div>
+        `).join('');
+        setupScrollAnimations();
+    }
+    
+    function renderMemberPostsList() {
+        const container = document.getElementById('member-posts-list');
+        const approvedPosts = DB.posts.filter(p => p.status === 'approved');
+        if (approvedPosts.length === 0) {
+            container.innerHTML = '<p>You have not written any posts yet.</p>';
+            return;
+        }
+        container.innerHTML = approvedPosts.map(post => `
+            <div class="card post-card">
+                <div class="post-card-content">
+                    <span class="tag">${post.category}</span>
+                    <h3>${post.title}</h3>
+                    <p><small>By ${post.author} on ${post.date}</small></p>
+                    <div class="post-media">${post.content}</div>
+                    ${post.media ? `<div class="post-media">${post.media}</div>` : ''}
+                </div>
+            </div>
+        `).join('');
+    }
+
+    function renderMentorMyPostsList() {
+        const container = document.getElementById('mentor-my-posts-list');
+        const myPosts = DB.posts.filter(p => p.author === currentUser.name);
+        if (myPosts.length === 0) {
+            container.innerHTML = '<p>You have not written any posts yet.</p>';
+            return;
+        }
+        container.innerHTML = myPosts.map(post => `
+            <div class="card post-card">
+                <div class="post-card-content">
+                    <span class="tag">${post.category} (${post.status})</span>
+                    <h3>${post.title}</h3>
+                    <p><small>On ${post.date}</small></p>
+                    <div class="post-media">${post.content}</div>
+                    ${post.media ? `<div class="post-media">${post.media}</div>` : ''}
+                </div>
+            </div>
+        `).join('');
+    }
+
+    function renderMentorPostsList() {
+        const container = document.getElementById('mentor-posts-list');
+        const approvedPosts = DB.posts.filter(p => p.status === 'approved');
+        if (approvedPosts.length === 0) {
+            container.innerHTML = '<p>No posts available yet.</p>';
+            return;
+        }
+        container.innerHTML = approvedPosts.map(post => `
+            <div class="card post-card">
+                <div class="post-card-content">
+                    <span class="tag">${post.category}</span>
+                    <h3>${post.title}</h3>
+                    <p><small>On ${post.date}</small></p>
+                    <div class="post-media">${post.content}</div>
+                    ${post.media ? `<div class="post-media">${post.media}</div>` : ''}
+                </div>
+            </div>
+        `).join('');
+    }
+
+    // --- EVENT MANAGEMENT ---
+    function handleCreateEvent(e) {
+        e.preventDefault();
+        const title = document.getElementById('event-title').value;
+        const date = document.getElementById('event-date').value;
+        const link = document.getElementById('event-link').value;
+        const description = document.getElementById('event-description').value;
+
+        const newEvent = { id: Date.now(), title, date, link, description };
+        DB.events.push(newEvent);
+        DB.save('events');
+        alert('Event created successfully!');
+        document.getElementById('new-event-form').reset();
+        updatePublicSections();
+    }
+
+    function renderPublicEventsList() {
+        const container = document.getElementById('public-events-list');
+        if (DB.events.length === 0) {
+            container.innerHTML = '<p>No upcoming events.</p>';
+            return;
+        }
+        container.innerHTML = DB.events.map(event => `
+            <div class="card">
+                <h3>${event.title}</h3>
+                <p><i class="fa-solid fa-clock"></i> ${new Date(event.date).toLocaleString()}</p>
+                <p>${event.description}</p>
+                <a href="${event.link}" target="_blank" class="btn btn-accent">Join Event</a>
+            </div>
+        `).join('');
+    }
+
+    function renderMemberEventsList() {
+        renderPublicEventsList(); // Same logic for now
+    }
+
+    function renderMentorEventsList() {
+        renderPublicEventsList(); // Same logic for now
+    }
+
+    // --- MEMBER & MENTOR MANAGEMENT ---
+    function renderAdminMembersList() {
+        const tableBody = document.getElementById('members-list');
+        if (DB.members.length === 0) {
+            tableBody.innerHTML = '<tr><td colspan="4">No membership requests yet.</td></tr>';
+            return;
+        }
+        tableBody.innerHTML = DB.members.map(member => `
+            <tr>
+                <td data-label="Name">${member.name}</td>
+                <td data-label="Email">${member.email}</td>
+                <td data-label="Role">${member.role}</td>
+                <td data-label="Status"><span style="color: ${member.status === 'approved' ? 'var(--secondary-green)' : 'var(--accent-orange)'};">${member.status.toUpperCase()}</span></td>
+                <td data-label="Actions">
+                    ${member.status === 'pending' ? `
+                        <button class="btn btn-primary" onclick="approveMember(${member.id})">Approve</button>
+                        <button class="btn btn-danger" onclick="denyMember(${member.id})">Deny</button>
+                        <button class="btn btn-edit" onclick="promoteToMentor(${member.id})">Promote to Mentor</button>
+                    ` : `
+                        <button class="btn btn-secondary" onclick="resetMemberPassword(${member.id})">Reset Password</button>
+                    `}
+                </td>
+            </tr>
+        `).join('');
+    }
+
+    function renderAdminMentorsList() {
+        const tableBody = document.getElementById('mentors-list');
+        if (DB.mentors.length === 0) {
+            tableBody.innerHTML = '<tr><td colspan="5">No mentor applications yet.</td></tr>';
+            return;
+        }
+        tableBody.innerHTML = DB.mentors.map(mentor => `
+            <tr>
+                <td data-label="Name">${mentor.name}</td>
+                <td data-label="Email">${mentor.email}</td>
+                <td data-label="Specialty">${mentor.specialty}</td>
+                <td data-label="Status"><span style="color: ${mentor.status === 'approved' ? 'var(--secondary-green)' : 'var(--accent-orange)'};">${mentor.status.toUpperCase()}</span></td>
+                <td data-label="Actions">
+                    ${mentor.status === 'pending' ? `
+                        <button class="btn btn-primary" onclick="approveMentor(${mentor.id})">Approve</button>
+                        <button class="btn btn-danger" onclick="denyMentor(${mentor.id})">Deny</button>
+                    ` : ''}
+                </td>
+            </tr>
+        `).join('');
+    }
+
+    function approveMember(memberId) {
+        const password = prompt('Set a password for this member:');
+        if (password) {
+            const memberIndex = DB.members.findIndex(m => m.id === memberId);
+            if(memberIndex > -1) {
+                DB.members[memberIndex].status = 'approved';
+                DB.members[memberIndex].password = password;
+                DB.save('members');
+                alert('Member approved and password set!');
+                renderAdminMembersList();
+            }
+        }
+    }
+
+    function denyMember(memberId) {
+        if (confirm('Are you sure you want to deny this request?')) {
+            DB.members = DB.members.filter(m => m.id !== memberId);
+            DB.save('members');
+            alert('Membership request denied.');
+            renderAdminMembersList();
+        }
+    }
+
+    function promoteToMentor(memberId) {
+        if (confirm(`Promote ${DB.members.find(m => m.id === memberId).name} to a Mentor?`)) {
+            const memberIndex = DB.members.findIndex(m => m.id === memberId);
+            if (memberIndex > -1) {
+                DB.members[memberIndex].role = 'mentor';
+                DB.save('members');
+                alert('Member promoted to Mentor!');
+                renderAdminMembersList();
+                renderAdminMentorsList();
+            }
+        }
+    }
+
+    function resetMemberPassword(memberId) {
+        const password = prompt('Enter a new password for this member:');
+        if (password) {
+            const memberIndex = DB.members.findIndex(m => m.id === memberId);
+            if(memberIndex > -1) {
+                DB.members[memberIndex].password = password;
+                DB.save('members');
+                alert('Password has been reset!');
+            }
+        }
+    }
+
+    function approveMentor(mentorId) {
+        const password = prompt('Set a password for this mentor:');
+        if (password) {
+            const mentorIndex = DB.mentors.findIndex(m => m.id === mentorId);
+            if(mentorIndex > -1) {
+                DB.mentors[mentorIndex].status = 'approved';
+                DB.mentors[mentorIndex].password = password;
+                DB.save('mentors');
+                alert('Mentor approved and password set!');
+                renderAdminMentorsList();
+            }
+        }
+    }
+
+    function denyMentor(mentorId) {
+        if (confirm('Are you sure you want to deny this application?')) {
+            DB.mentors = DB.mentors.filter(m => m.id !== mentorId);
+            DB.save('mentors');
+            alert('Mentor application denied.');
+            renderAdminMentorsList();
+        }
+    }
+
+    // --- CONNECTION & CHAT FUNCTIONALITY ---
+    function renderMemberConnectList() {
+        const listContainer = document.getElementById('member-connect-list');
+        const requestsContainer = document.getElementById('member-requests-list');
+        const mentorListContainer = document.getElementById('mentor-connect-list');
+        const otherMembers = DB.members.filter(m => m.id !== currentUser.id && m.status === 'approved');
+        const otherMentors = DB.mentors.filter(m => m.id !== currentUser.id && m.status === 'approved');
+
+        listContainer.innerHTML = otherMembers.length > 0 ? otherMembers.map(member => `
+            <li class="connection-item">
+                <div class="connection-item-info">
+                    <div class="avatar">${member.name.charAt(0).toUpperCase()}</div>
+                    <div>
+                        <h4>${member.name}</h4>
+                        <p>${member.email}</p>
+                    </div>
+                </div>
+                <div class="connection-actions">
+                    ${DB.connections.some(c => (c.requesterId === currentUser.id && c.addresseeId === member.id) || (c.requesterId === member.id && c.addresseeId === currentUser.id)) 
+                        ? `<span style="color: var(--secondary-green);">Connected</span>` 
+                        : `<button class="btn btn-primary" onclick="sendConnectionRequest(${member.id})">Connect</button>`
+                    }
+                </div>
+            </li>
+        `).join('') : '<p>No other members to connect with yet.</p>';
+
+        mentorListContainer.innerHTML = otherMentors.length > 0 ? otherMentors.map(mentor => `
+            <li class="connection-item">
+                <div class="connection-item-info">
+                     <div class="avatar" style="background-color: var(--accent-orange);">${mentor.name.charAt(0).toUpperCase()}</div>
+                     <div>
+                        <h4>${mentor.name} (Mentor)</h4>
+                        <p>${mentor.specialty}</p>
+                    </div>
+                </div>
+                <div class="connection-actions">
+                    ${DB.connections.some(c => (c.requesterId === currentUser.id && c.addresseeId === mentor.id) || (c.requesterId === mentor.id && c.addresseeId === currentUser.id)) 
+                        ? `<span style="color: var(--secondary-green);">Connected</span>` 
+                        : `<button class="btn btn-accent" onclick="sendMentorConnectionRequest(${mentor.id})">Request Mentorship</button>`
+                    }
+                </div>
+            </li>
+        `).join('') : '<p>No available mentors to connect with yet.</p>';
+
+        const requests = DB.connections.filter(c => c.addresseeId === currentUser.id && c.status === 'pending');
+        requestsContainer.innerHTML = requests.length > 0 ? requests.map(req => {
+            const requester = DB.members.find(m => m.id === req.requesterId) || DB.mentors.find(m => m.id === req.requesterId);
+            return `<li class="connection-item">
+                <div class="connection-item-info">
+                     <div class="avatar">${requester.name.charAt(0).toUpperCase()}</div>
+                     <div>
+                        <h4>${requester.name}</h4>
+                        <p>wants to be mentored by you.</p>
+                    </div>
+                </div>
+                <div class="connection-actions">
+                    <button class="btn btn-secondary" onclick="acceptConnectionRequest(${req.id})">Accept</button>
+                    <button class="btn btn-danger" onclick="denyConnectionRequest(${req.id})">Decline</button>
+                </div>
+            </li>`;
+        }).join('') : '<p>No pending requests.</p>';
+    }
+
+    function sendConnectionRequest(addresseeId) {
+        DB.connections.push({ id: Date.now(), requesterId: currentUser.id, addresseeId, status: 'pending' });
+        DB.save('connections');
+        alert('Connection request sent!');
+        renderMemberConnectList();
+    }
+
+    function sendMentorConnectionRequest(addresseeId) {
+        DB.connections.push({ id: Date.now(), requesterId: currentUser.id, addresseeId, status: 'pending' });
+        DB.save('connections');
+        alert('Mentorship request sent!');
+        renderMentorConnectList();
+    }
+
+    function acceptConnectionRequest(connectionId) {
+        const connection = DB.connections.find(c => c.id === connectionId);
+        if(connection) {
+            connection.status = 'approved';
+            DB.save('connections');
+            alert('Connection request accepted!');
+            renderMemberConnectList();
+            renderMentorConnectList();
+        }
+    }
+
+    function denyConnectionRequest(connectionId) {
+        DB.connections = DB.connections.filter(c => c.id !== connectionId);
+        DB.save('connections');
+        alert('Connection request declined.');
+        renderMemberConnectList();
+    }
+
+    function endMentorship(menteeId) {
+        if(confirm('Are you sure you want to end this mentorship?')) {
+            DB.connections = DB.connections.filter(c => !(c.requesterId === currentUser.id && c.addresseeId === menteeId));
+            DB.save('connections');
+            alert('Mentorship ended.');
+            renderMentorConnectList();
+        }
+    }
+    
+    function renderMemberChatList() {
+        const userListContainer = document.getElementById('member-chat-user-list');
+        const connectedUserIds = DB.connections
+            .filter(c => c.status === 'approved' && (c.requesterId === currentUser.id || c.addresseeId === currentUser.id))
+            .map(c => c.requesterId === currentUser.id ? c.addresseeId : c.requesterId);
+        
+        const connectedUsers = DB.members.filter(m => connectedUserIds.includes(m.id));
+        
+        userListContainer.innerHTML = connectedUsers.length > 0 ? connectedUsers.map(user => `
+            <div class="user-item" onclick="startMemberChatWithUser('${user.id}', '${user.name}')">
+                <div class="user-avatar">${user.name.charAt(0).toUpperCase()}</div>
+                <div class="user-info">
+                    <h4>${user.name}</h4>
+                    <p>${user.email}</p>
+                </div>
+            </div>
+        `).join('') : '<p style="padding: 15px; color: #bdc3c7;">No active chats. Connect with members to start chatting.</p>';
+    }
+
+    function startMemberChatWithUser(userId, name) {
+        currentChatUserId = userId;
+        document.getElementById('member-chat-user-name').textContent = name;
+        document.getElementById('member-chat-window').style.display = 'flex';
+        
+        // Highlight active user
+        document.querySelectorAll('#member-chat-user-list .user-item').forEach(item => {
+            item.classList.remove('active');
+            if(item.onclick.toString().includes(userId)) {
+                item.classList.add('active');
+            }
+        });
+        
+        loadMemberChatMessages();
+    }
+
+    function memberSendMessage() {
+        const input = document.getElementById('member-chat-input');
+        const text = input.value.trim();
+        if (!text || !currentChatUserId) return;
+
+        const chatKey = [currentUser.id, currentChatUserId].sort().join('-');
+        if (!DB.messages[chatKey]) DB.messages[chatKey] = [];
+        DB.messages[chatKey].push({ sender: currentUser.id, text, timestamp: new Date() });
+        DB.save('messages');
+        
+        input.value = '';
+        loadMemberChatMessages();
+    }
+
+    function loadMemberChatMessages() {
+        const container = document.getElementById('member-chat-messages');
+        const chatKey = [currentUser.id, currentChatUserId].sort().join('-');
+        const messages = DB.messages[chatKey] || [];
+        container.innerHTML = messages.map(msg => `
+            <div class="message ${msg.sender === currentUser.id ? 'sent' : 'received'}">
+                <div class="message-bubble">${msg.text}</div>
+            </div>
+        `).join('');
+        container.scrollTop = container.scrollHeight;
+    }
+
+    // --- CHAT FUNCTIONALITY (Admin) ---
+    function renderAdminChatUserList() {
+        const userListContainer = document.getElementById('chat-user-list');
+        const approvedMembers = DB.members.filter(m => m.status === 'approved');
+        const approvedMentors = DB.mentors.filter(m => m.status === 'approved');
+        const allChatUsers = [...approvedMembers, ...approvedMentors];
+
+        userListContainer.innerHTML = allChatUsers.length > 0 ? allChatUsers.map(user => `
+            <div class="user-item" onclick="startAdminChatWithUser('${user.email}', '${user.name}')">
+                <div class="user-avatar">${user.name.charAt(0).toUpperCase()}</div>
+                <div class="user-info">
+                    <h4>${user.name}</h4>
+                    <p>${user.email}</p>
+                </div>
+            </div>
+        `).join('') : '<p style="padding: 15px; color: #bdc3c7;">No approved members or mentors to chat with.</p>';
+    }
+
+    function startAdminChatWithUser(email, name) {
+        currentChatUserId = email;
+        document.getElementById('chat-user-name').textContent = name;
+        document.getElementById('chat-window').style.display = 'flex';
+        
+        // Highlight active user
+        document.querySelectorAll('#chat-user-list .user-item').forEach(item => {
+            item.classList.remove('active');
+            if(item.onclick.toString().includes(email)) {
+                item.classList.add('active');
+            }
+        });
+        
+        loadAdminChatMessages();
+    }
+
+    function adminSendMessage() {
+        const input = document.getElementById('admin-chat-input');
+        const text = input.value.trim();
+        if (!text || !currentChatUserId) return;
+
+        const chatKey = ['admin', currentChatUserId].sort().join('-');
+        if (!DB.messages[chatKey]) DB.messages[chatKey] = [];
+        DB.messages[chatKey].push({ sender: 'admin', text, timestamp: new Date() });
+        DB.save('messages');
+        
+        input.value = '';
+        loadAdminChatMessages();
+    }
+
+    function loadAdminChatMessages() {
+        const container = document.getElementById('admin-chat-messages');
+        const chatKey = ['admin', currentChatUserId].sort().join('-');
+        const messages = DB.messages[chatKey] || [];
+        container.innerHTML = messages.map(msg => `
+            <div class="message ${msg.sender === 'admin' ? 'sent' : 'received'}">
+                <div class="message-bubble">${msg.text}</div>
+            </div>
+        `).join('');
+        container.scrollTop = container.scrollHeight;
+    }
+
+    // --- CHAT FUNCTIONALITY (Mentor) ---
+    function renderMentorConnectList() {
+        const listContainer = document.getElementById('mentor-connect-list');
+        const requestsContainer = document.getElementById('mentor-requests-list');
+        const menteeIds = DB.connections
+            .filter(c => c.requesterId === currentUser.id && c.status === 'approved')
+            .map(c => c.addresseeId);
+        
+        const mentees = DB.members.filter(m => menteeIds.includes(m.id));
+
+        listContainer.innerHTML = mentees.length > 0 ? mentees.map(mentee => `
+            <li class="connection-item">
+                <div class="connection-item-info">
+                    <div class="avatar">${mentee.name.charAt(0).toUpperCase()}</div>
+                    <div>
+                        <h4>${mentee.name}</h4>
+                        <p>${mentee.email}</p>
+                    </div>
+                </div>
+                <div class="connection-actions">
+                    <button class="btn btn-danger" onclick="endMentorship('${mentee.id}')">End Mentorship</button>
+                </div>
+            </li>
+        `).join('') : '<p>You have no mentees yet.</p>';
+
+        const requests = DB.connections.filter(c => c.requesterId === currentUser.id && c.status === 'pending');
+        requestsContainer.innerHTML = requests.length > 0 ? requests.map(req => {
+            const requester = DB.members.find(m => m.id === req.requesterId);
+            return `<li class="connection-item">
+                <div class="connection-item-info">
+                     <div class="avatar">${requester.name.charAt(0).toUpperCase()}</div>
+                     <div>
+                        <h4>${requester.name}</h4>
+                        <p>wants to be mentored by you.</p>
+                    </div>
+                </div>
+                <div class="connection-actions">
+                    <button class="btn btn-secondary" onclick="acceptMentorshipRequest(${req.id})">Accept</button>
+                    <button class="btn btn-danger" onclick="denyMentorshipRequest(${req.id})">Decline</button>
+                </div>
+            </li>`;
+        }).join('') : '<p>No pending mentorship requests.</p>';
+    }
+
+    function acceptMentorshipRequest(requestId) {
+        const connection = DB.connections.find(c => c.id === requestId);
+        if(connection) {
+            connection.status = 'approved';
+            DB.save('connections');
+            alert('Mentorship request accepted!');
+            renderMentorConnectList();
+        }
+    }
+
+    function denyMentorshipRequest(requestId) {
+        DB.connections = DB.connections.filter(c => c.id !== requestId);
+        DB.save('connections');
+        alert('Mentorship request declined.');
+        renderMentorConnectList();
+    }
+
+    function endMentorship(menteeId) {
+        if(confirm('Are you sure you want to end this mentorship?')) {
+            DB.connections = DB.connections.filter(c => !(c.requesterId === currentUser.id && c.addresseeId === menteeId));
+            DB.save('connections');
+            alert('Mentorship ended.');
+            renderMentorConnectList();
+        }
+    }
+
+    function renderMentorChatList() {
+        const userListContainer = document.getElementById('mentor-chat-user-list');
+        const connectedUserIds = DB.connections
+            .filter(c => c.status === 'approved' && (c.requesterId === currentUser.id || c.addresseeId === currentUser.id))
+            .map(c => c.requesterId === currentUser.id ? c.addresseeId : c.requesterId);
+
+        const connectedUsers = DB.members.filter(m => connectedUserIds.includes(m.id));
+        
+        userListContainer.innerHTML = connectedUsers.length > 0 ? connectedUsers.map(user => `
+            <div class="user-item" onclick="startMentorChatWithUser('${user.id}', '${user.name}')">
+                <div class="user-avatar">${user.name.charAt(0).toUpperCase()}</div>
+                <div class="user-info">
+                    <h4>${user.name}</h4>
+                    <p>${user.email}</p>
+                </div>
+            </div>
+        `).join('') : '<p style="padding: 15px; color: #bdc3c7;">No active chats. Connect with members to start chatting.</p>';
+    }
+
+    function startMentorChatWithUser(userId, name) {
+        currentChatUserId = userId;
+        document.getElementById('mentor-chat-user-name').textContent = name;
+        document.getElementById('mentor-chat-window').style.display = 'flex';
+        
+        // Highlight active user
+        document.querySelectorAll('#mentor-chat-user-list .user-item').forEach(item => {
+            item.classList.remove('active');
+            if(item.onclick.toString().includes(userId)) {
+                item.classList.add('active');
+            }
+        });
+        
+        loadMentorChatMessages();
+    }
+
+    function mentorSendMessage() {
+        const input = document.getElementById('mentor-chat-input');
+        const text = input.value.trim();
+        if (!text || !currentChatUserId) return;
+
+        const chatKey = [currentUser.id, currentChatUserId].sort().join('-');
+        if (!DB.messages[chatKey]) DB.messages[chatKey] = [];
+        DB.messages[chatKey].push({ sender: currentUser.id, text, timestamp: new Date() });
+        DB.save('messages');
+        
+        input.value = '';
+        loadMentorChatMessages();
+    }
+
+    function loadMentorChatMessages() {
+        const container = document.getElementById('mentor-chat-messages');
+        const chatKey = [currentUser.id, currentChatUserId].sort().join('-');
+        const messages = DB.messages[chatKey] || [];
+        container.innerHTML = messages.map(msg => `
+            <div class="message ${msg.sender === currentUser.id ? 'sent' : 'received'}">
+                <div class="message-bubble">${msg.text}</div>
+            </div>
+        `).join('');
+        container.scrollTop = container.scrollHeight;
+    }
+
+
+    // --- UPDATES ---
+    function updatePublicSections() {
+        // Update Stats
+        const approvedMembers = DB.members.filter(m => m.status === 'approved');
+        const approvedMentors = DB.mentors.filter(m => m.status === 'approved');
+        document.getElementById('stat-members').textContent = approvedMembers.length + approvedMentors.length;
+        document.getElementById('stat-posts').textContent = DB.posts.length;
+        document.getElementById('stat-events').textContent = DB.events.length;
+
+        // Update Posts List
+        renderPublicPostsList();
+    }
+    
+    function updateAdminDashboard() {
+        const approvedMembers = DB.members.filter(m => m.status === 'approved');
+        const approvedMentors = DB.mentors.filter(m => m.status === 'approved');
+        document.getElementById('total-members').textContent = approvedMembers.length + approvedMentors.length;
+        document.getElementById('total-posts').textContent = DB.posts.length;
+        document.getElementById('total-events').textContent = DB.events.length;
+    }
+
+    // --- MODAL & UI HELPERS ---
+    function showModal(modalId) {
+        document.getElementById(modalId).style.display = 'block';
+    }
+
+    function closeModal(modalId) {
+        document.getElementById(modalId).style.display = 'none';
+    }
+
+    function switchModal(toModalId) {
+        closeModal('loginModal');
+        closeModal('signupModal');
+        closeModal('mentorRequestModal');
+        showModal(toModalId);
+    }
+
+    function formatText(command) {
+        document.execCommand(command, false, null);
+        const activeEditor = document.getElementById('post-content-editor') || document.getElementById('mentor-post-content-editor');
+        if(activeEditor) activeEditor.focus();
+    }
+
+    function addLink() {
+        const url = prompt('Enter URL:');
+        if (url) {
+            document.execCommand('createLink', false, url);
+        }
+        const activeEditor = document.getElementById('post-content-editor') || document.getElementById('mentor-post-content-editor');
+        if(activeEditor) activeEditor.focus();
+    }
+
+</script>
+</body>
+</html>
