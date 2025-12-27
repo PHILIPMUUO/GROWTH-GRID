@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Growth Grid Channel | Transforming Minds & Hearts</title>
-    <meta name="description" content="A transformational platform guiding young people toward personal growth, emotional healing, and purpose.">
     
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -12,57 +11,47 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Playfair+Display:ital,wght@0,600;1,600&display=swap" rel="stylesheet">
 
     <style>
-        /* --- CSS VARIABLES & RESET --- */
+        /* --- CSS VARIABLES --- */
         :root {
-            /* PALETTE: Distinctive BLUE & Reddish Orange */
             --primary-blue: #1900ff;       
-            --primary-blue-light: #4d4dff;
-            --primary-blue-bg: #001a4d; /* Darker blue for text/backgrounds */
+            --primary-light: #4d4dff;
+            --primary-dark: #001a4d;
             
-            --accent-orange: #ff4400;      /* Reddish Orange */
-            --accent-orange-hover: #cc3600;
+            --accent-orange: #ff4400;      
+            --accent-hover: #cc3600;
             
             --text-white: #ffffff;
             --text-dark: #040030;
             --text-muted: #555;
-            --bg-light: #f4f7fa;
-            --bg-white: #ffffff;
-            --border-color: #e2e8f0;
-
-            --spacing-xs: 0.5rem;
-            --spacing-sm: 1rem;
-            --spacing-md: 2rem;
-            --spacing-lg: 4rem;
-            --spacing-xl: 6rem;
+            
+            --glass-bg: rgba(255, 255, 255, 0.85);
+            --glass-border: rgba(255, 255, 255, 0.6);
+            --glass-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.1);
+            
+            --bg-body: #f0f4f8;
 
             --radius-sm: 8px;
             --radius-md: 16px;
-            --radius-lg: 24px;
-            
-            --shadow-sm: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
-            --shadow-md: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
-            --shadow-lg: 0 20px 25px -5px rgba(0, 0, 0, 0.15);
+            --radius-lg: 30px;
         }
 
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        html {
-            scroll-behavior: smooth;
-        }
+        /* --- RESET & GLOBAL --- */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        html { scroll-behavior: smooth; }
 
         body {
             font-family: 'Inter', sans-serif;
-            background-color: var(--bg-light);
+            background-color: var(--bg-body);
+            background-image: 
+                radial-gradient(at 0% 0%, rgba(25, 0, 255, 0.1) 0px, transparent 50%),
+                radial-gradient(at 100% 0%, rgba(255, 68, 0, 0.1) 0px, transparent 50%);
+            background-attachment: fixed;
             color: var(--text-dark);
             line-height: 1.6;
             overflow-x: hidden;
         }
 
-        /* --- TYPOGRAPHY --- */
         h1, h2, h3, h4 {
             font-family: 'Inter', sans-serif;
             font-weight: 800;
@@ -70,137 +59,86 @@
             line-height: 1.2;
         }
 
-        h2 {
-            font-size: 2.2rem;
-            margin-bottom: var(--spacing-md);
-            position: relative;
-            display: inline-block;
+        h2 { font-size: 2.2rem; margin-bottom: var(--spacing-md); position: relative; display: inline-block; }
+
+        /* Scroll Animations */
+        .reveal {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.8s ease-out;
+        }
+        .reveal.active { opacity: 1; transform: translateY(0); }
+
+        /* --- GLASSMORPHISM UTILITIES --- */
+        .glass {
+            background: var(--glass-bg);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid var(--glass-border);
+            box-shadow: var(--glass-shadow);
         }
 
-        h2::after {
-            content: '';
-            display: block;
-            width: 60px;
-            height: 4px;
-            background: linear-gradient(90deg, var(--primary-blue), var(--accent-orange));
-            margin-top: var(--spacing-xs);
-            border-radius: 2px;
+        .glass-card {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            border-radius: var(--radius-md);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.05);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
         }
 
-        p {
-            margin-bottom: 1rem;
-            color: var(--text-muted);
+        .glass-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(0,0,0,0.1);
+            background: rgba(255, 255, 255, 0.9);
         }
 
-        a {
-            text-decoration: none;
-            color: inherit;
-            transition: all 0.3s ease;
-        }
-
-        ul {
-            list-style: none;
-        }
-
-        /* --- UTILITIES --- */
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 0 var(--spacing-md);
-        }
-
-        .section-padding {
-            padding: var(--spacing-xl) 0;
-        }
-
-        .text-center { text-align: center; }
-        .hidden { display: none !important; }
-        
         /* --- BUTTONS --- */
         .btn {
             display: inline-block;
-            padding: 1rem 2.5rem;
+            padding: 0.8rem 2rem;
             border-radius: 50px;
             font-weight: 600;
             text-transform: uppercase;
             letter-spacing: 0.5px;
             cursor: pointer;
             border: none;
-            transition: all 0.3s ease;
-            font-size: 0.9rem;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            font-size: 0.85rem;
         }
 
         .btn-primary {
-            background: linear-gradient(135deg, var(--primary-blue) 0%, var(--primary-blue-light) 100%);
+            background: linear-gradient(135deg, var(--primary-blue), var(--primary-light));
             color: white;
             box-shadow: 0 4px 15px rgba(25, 0, 255, 0.3);
-            border: 1px solid rgba(255,255,255,0.1);
         }
 
         .btn-primary:hover {
             transform: translateY(-2px);
-            box-shadow: 0 10px 20px rgba(25, 0, 255, 0.4);
+            box-shadow: 0 8px 25px rgba(25, 0, 255, 0.5);
+            filter: brightness(110%);
         }
 
         .btn-secondary {
-            background-color: var(--bg-white);
+            background: white;
             color: var(--primary-blue);
             border: 2px solid var(--primary-blue);
         }
 
-        .btn-secondary:hover {
-            background-color: var(--primary-blue);
-            color: white;
-        }
+        .btn-secondary:hover { background: var(--primary-blue); color: white; }
 
-        /* --- FORMS --- */
-        .form-group {
-            margin-bottom: 1.2rem;
-        }
-
-        label {
-            display: block;
-            margin-bottom: 0.5rem;
-            font-weight: 600;
-            color: var(--primary-blue-bg);
-        }
-
-        input[type="text"], input[type="email"], input[type="password"], input[type="tel"], textarea, select {
-            width: 100%;
-            padding: 12px;
-            border: 2px solid var(--border-color);
-            border-radius: var(--radius-sm);
-            font-family: inherit;
-            font-size: 1rem;
-            transition: border-color 0.3s;
-        }
-
-        input:focus, textarea:focus, select:focus {
-            outline: none;
-            border-color: var(--primary-blue);
-        }
-
-        .file-upload-wrapper {
-            border: 2px dashed var(--primary-blue);
-            padding: 2rem;
-            text-align: center;
-            border-radius: var(--radius-md);
-            background: rgba(25, 0, 255, 0.02);
-            cursor: pointer;
-            margin-bottom: 1rem;
-        }
-
-        /* --- HEADER --- */
+        /* --- HEADER (Public Site) --- */
         header {
             position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            background: rgba(255, 255, 255, 0.98);
-            backdrop-filter: blur(10px);
-            z-index: 1000;
-            border-bottom: 1px solid rgba(0,0,0,0.05);
-            transition: all 0.3s;
+            top: 0; left: 0; width: 100%;
+            z-index: 100;
+            transition: all 0.3s ease;
+        }
+
+        header.scrolled {
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(15px);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.05);
         }
 
         .nav-container {
@@ -208,20 +146,19 @@
             justify-content: space-between;
             align-items: center;
             height: 80px;
+            padding: 0 var(--spacing-md);
+            max-width: 1400px;
+            margin: 0 auto;
         }
 
         .logo {
             font-size: 1.5rem;
             font-weight: 800;
             color: var(--primary-blue);
-            letter-spacing: -1px;
             display: flex;
             align-items: center;
             gap: 0.5rem;
-        }
-
-        .logo span {
-            color: var(--accent-orange);
+            cursor: pointer;
         }
 
         .nav-links {
@@ -231,24 +168,23 @@
         }
 
         .nav-links a {
-            font-weight: 600;
-            color: var(--primary-blue);
-            font-size: 0.95rem;
-            white-space: nowrap;
+            font-weight: 500;
+            color: var(--primary-dark);
+            text-decoration: none;
+            padding: 0.5rem 0;
+            transition: color 0.3s;
         }
 
-        .nav-links a:hover {
-            color: var(--accent-orange);
-        }
+        .nav-links a:hover { color: var(--accent-orange); }
 
-        .mobile-menu-btn {
-            display: none;
-            font-size: 1.5rem;
-            color: var(--primary-blue);
-            cursor: pointer;
-        }
+        .mobile-menu-btn { display: none; font-size: 1.8rem; color: var(--primary-blue); cursor: pointer; }
 
-        /* --- HERO SECTION WITH SLIDER --- */
+        /* --- MAIN SECTIONS (Public) --- */
+        .section-padding { padding: 6rem 0; }
+        .container { max-width: 1200px; margin: 0 auto; padding: 0 1.5rem; }
+        .text-center { text-align: center; }
+
+        /* Hero */
         .hero {
             position: relative;
             height: 100vh;
@@ -257,31 +193,18 @@
             align-items: center;
             justify-content: center;
             overflow: hidden;
-            background-color: var(--primary-blue-bg);
+            background: var(--primary-dark);
         }
 
         .hero-slider {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: 1;
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1;
         }
-
         .slide {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-size: cover;
-            background-position: center;
-            opacity: 0;
-            transform: scale(1.1);
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background-size: cover; background-position: center;
+            opacity: 0; transform: scale(1.1);
             animation: swipeAnimation 18s infinite;
         }
-
         .slide:nth-child(1) { animation-delay: 0s; background-image: url('https://picsum.photos/seed/youth1/1920/1080'); }
         .slide:nth-child(2) { animation-delay: 6s; background-image: url('https://picsum.photos/seed/growth2/1920/1080'); }
         .slide:nth-child(3) { animation-delay: 12s; background-image: url('https://picsum.photos/seed/faith3/1920/1080'); }
@@ -295,691 +218,417 @@
         }
 
         .hero-overlay {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
             background: linear-gradient(135deg, rgba(25, 0, 255, 0.85) 0%, rgba(0, 80, 157, 0.85) 100%);
             z-index: 2;
         }
+        
+        .blob {
+            position: absolute; width: 500px; height: 500px; background: var(--accent-orange);
+            opacity: 0.2; filter: blur(80px); border-radius: 50%; z-index: 2;
+            animation: floatBlob 10s infinite ease-in-out;
+        }
+        .blob-1 { top: 10%; right: 10%; }
+        .blob-2 { bottom: 10%; left: 10%; background: var(--primary-light); animation-delay: 2s; }
+        @keyframes floatBlob { 0%, 100% { transform: translate(0, 0); } 50% { transform: translate(30px, -40px); } }
 
         .hero-content {
-            position: relative;
-            z-index: 3;
-            text-align: center;
-            max-width: 900px;
-            padding: 0 var(--spacing-md);
-            color: white;
-        }
-
-        .motto-banner {
-            background: rgba(255, 68, 0, 0.2); 
-            backdrop-filter: blur(5px);
-            border: 1px solid var(--accent-orange);
-            padding: var(--spacing-sm) var(--spacing-md);
-            border-radius: 50px;
-            display: inline-block;
-            margin-bottom: var(--spacing-lg);
-            font-size: 0.8rem;
-            font-weight: 700;
-            letter-spacing: 1px;
-            text-transform: uppercase;
-            color: var(--accent-orange);
+            position: relative; z-index: 3; text-align: center;
+            max-width: 900px; padding: 0 1.5rem; color: white;
         }
 
         .hero h1 {
             font-size: clamp(2.5rem, 5vw, 4.5rem);
-            margin-bottom: var(--spacing-md);
-            color: white;
-            letter-spacing: -2px;
-            text-shadow: 0 4px 10px rgba(0, 51, 102, 0.5);
+            margin-bottom: 2rem; color: white; text-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+            animation: fadeInUp 1s ease 0.2s backwards;
         }
 
-        .hero p {
-            font-size: 1.25rem;
-            color: #e2e8f0;
-            margin-bottom: var(--spacing-lg);
-            max-width: 700px;
-            margin-left: auto;
-            margin-right: auto;
-        }
-
-        /* --- DAILY ENCOURAGEMENT SECTION (NEW) --- */
+        /* Daily Encouragement */
         #daily-encouragement {
-            background-color: var(--bg-white);
-            padding: 3rem 0;
-            border-bottom: 1px solid var(--border-color);
-            position: relative;
-            z-index: 10; /* To sit above hero */
-            margin-top: -3rem; /* Pull up into hero slightly */
+            position: relative; z-index: 10; margin-top: -4rem; padding-bottom: 3rem;
         }
-
         .daily-card {
-            background: white;
-            border-radius: var(--radius-lg);
-            box-shadow: var(--shadow-lg);
-            overflow: hidden;
-            display: flex;
-            flex-direction: column;
-            max-width: 900px;
-            margin: 0 auto;
-            border: 1px solid var(--border-color);
+            background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(20px);
+            border-radius: var(--radius-lg); box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden; display: flex; flex-direction: column;
+            max-width: 900px; margin: 0 auto; border: 1px solid rgba(255,255,255,0.8);
         }
+        @media (min-width: 768px) { .daily-card { flex-direction: row; height: 420px; } }
+        .daily-img { flex: 1; background-size: cover; background-position: center; min-height: 250px; }
+        .daily-content { flex: 1; padding: 3rem; display: flex; flex-direction: column; justify-content: center; }
 
-        @media (min-width: 768px) {
-            .daily-card {
-                flex-direction: row;
-                height: 450px;
-            }
-        }
-
-        .daily-img {
-            flex: 1;
-            background-size: cover;
-            background-position: center;
-            min-height: 250px;
-        }
-
-        .daily-content {
-            flex: 1;
-            padding: 2.5rem;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-        }
-
-        .topic-tag {
-            background-color: rgba(25, 0, 255, 0.1);
-            color: var(--primary-blue);
-            padding: 4px 12px;
-            border-radius: 20px;
-            font-size: 0.8rem;
-            font-weight: 700;
-            text-transform: uppercase;
-            align-self: flex-start;
-            margin-bottom: 1rem;
-        }
-
-        .daily-content h3 {
-            font-size: 1.8rem;
-            margin-bottom: 1rem;
-            color: var(--primary-blue);
-        }
-
-        .daily-content p {
-            font-size: 1rem;
-            color: #666;
-            line-height: 1.7;
-        }
-
-        /* --- SECTIONS (About, Vision, etc) --- */
-        .about-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: var(--spacing-lg);
-            align-items: center;
-        }
-
+        /* About & Grids */
+        .about-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 4rem; align-items: center; }
         .about-img-placeholder {
-            width: 100%;
-            height: 400px;
-            background-color: #e0e0e0;
-            border-radius: var(--radius-md);
-            position: relative;
-            overflow: hidden;
-            box-shadow: var(--shadow-lg);
+            width: 100%; height: 400px; border-radius: var(--radius-md); position: relative;
+            overflow: hidden; box-shadow: var(--shadow-lg);
         }
-        
         .about-img-placeholder::before {
-            content: '';
-            position: absolute;
-            top: 0; left: 0; right: 0; bottom: 0;
-            background: url('https://picsum.photos/seed/teamwork/800/600') center/cover;
+            content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+            background: url('https://picsum.photos/seed/teamwork/800/600') center/cover; transition: transform 0.5s ease;
         }
-
         .about-card {
-            position: absolute;
-            bottom: -30px;
-            right: -30px;
-            background: white;
-            padding: 1.5rem;
-            border-radius: var(--radius-md);
-            box-shadow: var(--shadow-lg);
-            max-width: 250px;
+            position: absolute; bottom: -30px; right: -30px; background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px); padding: 1.5rem; border-radius: var(--radius-md);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.15); max-width: 250px;
             border-left: 5px solid var(--accent-orange);
         }
+        .vm-grid, .focus-grid {
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 2rem; margin-top: 3rem;
+        }
+        .focus-card { padding: 2rem; border-top: 4px solid var(--primary-blue); }
 
-        .vision-mission-section {
-            background-color: white;
-            border-top: 1px solid #e2e8f0;
-            border-bottom: 1px solid #e2e8f0;
+        /* ================= MODALS (Popups) ================= */
+        .modal-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.4); backdrop-filter: blur(8px);
+            z-index: 2000; display: flex; justify-content: center; align-items: center;
+            opacity: 0; pointer-events: none; transition: opacity 0.3s ease;
         }
 
-        .vm-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 2rem;
+        .modal-overlay.active { opacity: 1; pointer-events: all; }
+
+        .modal-box {
+            background: white; width: 90%; max-width: 500px;
+            padding: 2.5rem; border-radius: var(--radius-md);
+            box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+            position: relative; transform: translateY(20px); transition: transform 0.3s ease;
+            max-height: 90vh; overflow-y: auto;
         }
 
-        .vm-card {
-            background: var(--bg-light);
-            padding: var(--spacing-md);
-            border-radius: var(--radius-md);
-            transition: all 0.3s ease;
-            border: 1px solid transparent;
+        .modal-overlay.active .modal-box { transform: translateY(0); }
+
+        .close-modal {
+            position: absolute; top: 15px; right: 20px; font-size: 1.5rem;
+            cursor: pointer; color: var(--text-muted);
+        }
+        .close-modal:hover { color: var(--accent-orange); }
+
+        /* Form Styles */
+        .form-group { margin-bottom: 1.2rem; }
+        label { display: block; margin-bottom: 0.5rem; font-weight: 600; color: var(--primary-blue-bg); font-size: 0.9rem;}
+        input[type="text"], input[type="email"], input[type="password"], input[type="tel"], textarea, select {
+            width: 100%; padding: 12px; border: 2px solid #e2e8f0; background: #f8fafc;
+            border-radius: var(--radius-sm); font-family: inherit; transition: all 0.3s;
+        }
+        input:focus, textarea:focus, select:focus {
+            outline: none; border-color: var(--primary-blue); background: white;
+            box-shadow: 0 0 0 3px rgba(25, 0, 255, 0.1);
         }
 
-        .vm-card:hover {
-            background: white;
-            transform: translateY(-5px);
-            box-shadow: var(--shadow-lg);
-            border-color: var(--accent-orange);
+        /* ================= PORTALS (Dashboards) ================= */
+        .portal-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: #f1f5f9; z-index: 1500;
+            overflow-y: auto; transform: translateY(100%); transition: transform 0.4s ease-in-out;
         }
 
-        .vm-icon {
-            font-size: 2rem;
-            margin-bottom: 1rem;
-            color: var(--primary-blue);
+        .portal-overlay.active { transform: translateY(0); }
+
+        /* Portal Header */
+        .portal-header {
+            background: var(--primary-blue); color: white; padding: 1rem 2rem;
+            display: flex; justify-content: space-between; align-items: center;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1); position: sticky; top: 0; z-index: 100;
         }
 
-        .vm-list li {
-            position: relative;
-            padding-left: 1.5rem;
-            margin-bottom: 0.75rem;
-            color: var(--text-muted);
-            font-size: 0.95rem;
-        }
-
-        .vm-list li::before {
-            content: '•';
-            color: var(--accent-orange);
-            position: absolute;
-            left: 0;
-            font-weight: bold;
-        }
-
-        .focus-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 1.5rem;
-        }
-
-        .focus-card {
-            background: white;
-            padding: var(--spacing-md);
-            border-radius: var(--radius-md);
-            box-shadow: var(--shadow-sm);
-            border-top: 4px solid var(--primary-blue);
-            transition: all 0.3s ease;
-        }
-
-        .focus-card:hover {
-            transform: translateY(-5px);
-            border-top-color: var(--accent-orange);
-        }
-
-        /* --- AUTH & DASHBOARD --- */
-        .auth-container, .dashboard-container {
-            min-height: 80vh;
-            padding-top: 120px;
-            padding-bottom: 4rem;
-        }
-
-        .auth-box {
-            background: white;
-            max-width: 500px;
-            margin: 0 auto;
-            padding: 2.5rem;
-            border-radius: var(--radius-md);
-            box-shadow: var(--shadow-lg);
-            border: 1px solid var(--border-color);
-        }
-
-        .dashboard-grid {
-            display: grid;
-            grid-template-columns: 300px 1fr;
-            gap: 2rem;
-            margin-top: 2rem;
+        /* Dashboard Grid inside Portal */
+        .dashboard-container {
+            max-width: 1400px; margin: 2rem auto; padding: 0 1.5rem;
+            display: grid; grid-template-columns: 300px 1fr; gap: 2rem;
         }
 
         .profile-card {
-            background: white;
-            padding: 2rem;
-            border-radius: var(--radius-md);
-            box-shadow: var(--shadow-sm);
-            text-align: center;
-            height: fit-content;
+            background: white; padding: 2rem; border-radius: var(--radius-md);
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05); text-align: center; height: fit-content;
         }
-
         .profile-img {
-            width: 150px;
-            height: 150px;
-            border-radius: 50%;
-            object-fit: cover;
-            margin-bottom: 1rem;
-            border: 4px solid var(--primary-blue);
+            width: 120px; height: 120px; border-radius: 50%; object-fit: cover;
+            margin-bottom: 1rem; border: 4px solid var(--primary-blue);
         }
 
         .feed-card {
-            background: white;
-            border-radius: var(--radius-md);
-            padding: 1.5rem;
-            margin-bottom: 2rem;
-            box-shadow: var(--shadow-sm);
+            background: white; border-radius: var(--radius-md); padding: 2rem;
+            margin-bottom: 2rem; box-shadow: 0 2px 5px rgba(0,0,0,0.02);
+            border: 1px solid #e2e8f0;
         }
+        .feed-img { width: 100%; border-radius: var(--radius-sm); margin-bottom: 1rem; max-height: 400px; object-fit: cover; }
 
-        .feed-header {
-            display: flex;
-            align-items: center;
-            margin-bottom: 1rem;
-            gap: 1rem;
-        }
-
-        .feed-img {
-            width: 100%;
-            border-radius: var(--radius-sm);
-            margin-bottom: 1rem;
-            max-height: 400px;
-            object-fit: cover;
-        }
-
-        /* --- ADMIN PANEL --- */
-        .admin-toolbar {
-            background: #f1f1f1;
-            padding: 0.5rem;
-            border-radius: var(--radius-sm);
-            margin-bottom: 0.5rem;
-            display: flex;
-            gap: 0.5rem;
-        }
-
-        .toolbar-btn {
-            background: white;
-            border: 1px solid #ccc;
-            padding: 4px 8px;
-            cursor: pointer;
-            border-radius: 4px;
-            font-weight: bold;
-        }
-
-        .toolbar-btn:hover { background: #eee; }
-        
-        #editor {
-            min-height: 150px;
-            border: 2px solid var(--border-color);
-            padding: 10px;
-            border-radius: var(--radius-sm);
-            overflow-y: auto;
-        }
+        /* Editor Tools */
+        .admin-toolbar { background: #f1f1f1; padding: 0.5rem; border-radius: 4px; margin-bottom: 0.5rem; display: flex; gap: 0.5rem; }
+        .toolbar-btn { background: white; border: 1px solid #ccc; padding: 4px 8px; cursor: pointer; border-radius: 4px; font-weight: bold; }
+        #editor { min-height: 150px; border: 1px solid #ccc; padding: 10px; border-radius: 4px; }
 
         /* --- FOOTER --- */
         footer {
-            background-color: var(--primary-blue-bg);
-            color: #cbd5e1;
-            padding: var(--spacing-lg) 0 var(--spacing-md);
-            text-align: center;
-            border-top: 1px solid rgba(255,255,255,0.1);
+            background: var(--primary-dark); color: #cbd5e1; padding: 4rem 0 2rem; text-align: center;
         }
-
-        .footer-links {
-            display: flex;
-            justify-content: center;
-            gap: 2rem;
-            margin: 1.5rem 0;
-        }
+        .footer-links { display: flex; justify-content: center; gap: 2rem; margin: 1.5rem 0; }
 
         /* --- RESPONSIVE --- */
-        @media (max-width: 768px) {
+        @media (max-width: 992px) {
             .nav-links {
-                display: none;
-                flex-direction: column;
-                position: absolute;
-                top: 80px;
-                left: 0;
-                width: 100%;
-                background: white;
-                padding: 1rem;
-                box-shadow: var(--shadow-md);
-                text-align: center;
+                position: fixed; top: 80px; left: 0; width: 100%; background: white;
+                flex-direction: column; padding: 2rem; box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+                transform: translateY(-150%); transition: transform 0.4s ease; z-index: 99;
+                align-items: center;
             }
-
-            .nav-links.active { display: flex; }
+            .nav-links.active { transform: translateY(0); }
             .mobile-menu-btn { display: block; }
-
-            .about-grid, .dashboard-grid {
-                grid-template-columns: 1fr;
-            }
-
-            .hero h1 { font-size: 2.2rem; }
-            .about-card { position: relative; bottom: auto; right: auto; margin-top: -20px; left: 10px; max-width: 90%; }
-            .section-padding { padding: var(--spacing-lg) 0; }
+            .dashboard-container { grid-template-columns: 1fr; }
+            .about-grid { grid-template-columns: 1fr; }
+            .about-card { position: relative; bottom: auto; right: auto; margin: -30px 0 0 20px; }
         }
     </style>
 </head>
 <body>
 
-    <!-- Header -->
-    <header>
-        <div class="container nav-container">
-            <a href="#" class="logo" onclick="app.router('home')">
+    <!-- ================= MAIN SITE ================= -->
+    <!-- Public Header -->
+    <header id="main-header" class="glass">
+        <div class="nav-container">
+            <a href="#" class="logo" onclick="app.closePortal()">
                 GROWTH<span>GRID</span>
             </a>
-            <nav class="nav-links" id="navLinks">
-                <a href="#" onclick="app.router('home')">Home</a>
-                <a href="#daily-encouragement" onclick="app.router('home')">Daily Encouragement</a>
-                <!-- Links visible based on auth state -->
-                <span id="nav-guest" style="display:flex; gap:1.5rem; align-items:center;">
-                    <a href="#" onclick="app.router('login')">Login</a>
-                    <a href="#" class="btn btn-primary" onclick="app.router('signup')" style="padding: 0.5rem 1.5rem;">Join Us</a>
-                </span>
-                <span id="nav-member" class="hidden" style="display:flex; gap:1.5rem; align-items:center;">
-                    <a href="#" onclick="app.router('dashboard')">Dashboard</a>
-                    <a href="#" onclick="app.logout()" style="color:var(--accent-orange);">Logout</a>
-                </span>
-                <span id="nav-admin" class="hidden" style="display:flex; gap:1.5rem; align-items:center;">
-                    <a href="#" onclick="app.router('admin')">Admin Portal</a>
-                    <a href="#" onclick="app.logout()">Logout</a>
-                </span>
+            
+            <nav class="nav-links" id="main-nav-links">
+                <a href="#" onclick="app.closePortal()">Home</a>
+                <a href="#daily-encouragement" onclick="app.closePortal()">Daily Encouragement</a>
+                <a href="#about" onclick="app.closePortal()">About</a>
+                <a href="#vision-mission" onclick="app.closePortal()">Vision & Mission</a>
+                <a href="#focus" onclick="app.closePortal()">Focus Areas</a>
+                <a href="#values" onclick="app.closePortal()">Core Values</a>
+                
+                <!-- Auth Buttons -->
+                <div id="public-nav-auth" style="display:flex; gap:1rem; margin-top:10px; margin-left:10px;">
+                    <!-- Injected via JS -->
+                </div>
             </nav>
+
             <div class="mobile-menu-btn" id="menuBtn">☰</div>
         </div>
     </header>
 
     <main id="main-content">
-        
-        <!-- ================= VIEW: HOME ================= -->
-        <div id="view-home">
-            <!-- Hero Section -->
-            <section class="hero">
-                <div class="hero-slider">
-                    <div class="slide"></div>
-                    <div class="slide"></div>
-                    <div class="slide"></div>
-                </div>
-                <div class="hero-overlay"></div>
-                <div class="hero-content">
-                    <div class="motto-banner">
-                        Grow the Mind. Strengthen the Heart. Live with Faith.
-                    </div>
-                    <h1>Navigate Life with <span style="color: var(--accent-orange);">Clarity</span> & Purpose</h1>
-                    <p>A transformational platform dedicated to guiding young people toward personal growth, emotional healing, and a life of faith.</p>
-                    <a href="#" class="btn btn-primary" onclick="app.router('signup')">Start Your Journey</a>
-                </div>
-            </section>
-
-            <!-- Daily Encouragement Section (Inserted After Hero) -->
-            <section id="daily-encouragement">
-                <div class="container">
-                    <div class="text-center">
-                        <h4 style="color:var(--accent-orange); text-transform:uppercase; letter-spacing:2px; margin-bottom:0.5rem;">Today's Boost</h4>
-                        <h2 style="margin-bottom:2rem;">Daily Encouragement</h2>
-                    </div>
-                    
-                    <!-- Dynamic Daily Post will load here -->
-                    <div id="daily-post-container">
-                        <div class="daily-card">
-                            <div class="daily-content" style="width:100%; align-items:center; text-align:center;">
-                                <p>Loading encouragement...</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </section>
-
-            <!-- About Section -->
-            <section id="about" class="section-padding">
-                <div class="container">
-                    <div class="about-grid">
-                        <div class="about-text">
-                            <h2>Who We Are</h2>
-                            <p><strong>Growth Grid Channel</strong> is a transformational platform dedicated to guiding young people toward personal growth, emotional healing, and living a life of purpose.</p>
-                            <p>We exist to help individuals reshape their mindset, thrive through limiting beliefs, and embrace life with positivity and faith.</p>
-                            <p>Through faith-centered guidance, practical wisdom, and real-life conversations, we empower people to grow mentally, emotionally, spiritually, and relationally.</p>
-                        </div>
-                        <div class="about-img-placeholder">
-                            <div class="about-card">
-                                <h4>No One Walks Alone</h4>
-                                <p style="margin-bottom: 0; font-size: 0.9rem;">We believe growth is a journey, not a destination.</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </section>
-
-            <!-- Vision & Mission -->
-            <section id="vision-mission" class="section-padding vision-mission-section">
-                <div class="container">
-                    <div class="text-center">
-                        <h2>Our Foundation</h2>
-                        <p style="color: var(--text-muted);">The pillars that support our mission.</p>
-                    </div>
-                    <div class="vm-grid" style="margin-top:2rem;">
-                        <div class="vm-card">
-                            <div class="vm-icon">👁️</div>
-                            <h3>Our Vision</h3>
-                            <p>To raise a generation of young people who are emotionally healthy, spiritually grounded, and confidently living purposeful lives rooted in faith, positivity, and self-awareness.</p>
-                        </div>
-                        <div class="vm-card">
-                            <div class="vm-icon">🚀</div>
-                            <h3>Our Mission</h3>
-                            <p>To equip young people with the tools they need to navigate life with clarity, courage, and faith through impactful content, mentorship, and community engagement.</p>
-                        </div>
-                    </div>
-                </div>
-            </section>
-
-            <!-- Focus Areas -->
-            <section id="focus" class="section-padding">
-                <div class="container">
-                    <div class="text-center" style="margin-bottom: var(--spacing-md);">
-                        <h2>Our Focus Areas</h2>
-                        <p>Holistic growth for every area of your life.</p>
-                    </div>
-                    <div class="focus-grid">
-                        <div class="focus-card">
-                            <h3>Mindset & Growth</h3>
-                            <p>Building confidence, discipline and purpose.</p>
-                        </div>
-                        <div class="focus-card">
-                            <h3>Faith & Spiritual</h3>
-                            <p>Applying faith to real-life situations.</p>
-                        </div>
-                        <div class="focus-card">
-                            <h3>Relationships</h3>
-                            <p>Healthy love, communication and commitment.</p>
-                        </div>
-                        <div class="focus-card">
-                            <h3>Mental & Emotional</h3>
-                            <p>Healing, self-awareness and inner strength.</p>
-                        </div>
-                        <div class="focus-card">
-                            <h3>Youth Empowerment</h3>
-                            <p>Finding direction, meaning and identity.</p>
-                        </div>
-                    </div>
-                </div>
-            </section>
-
-            <!-- Call To Action -->
-            <div class="container">
-                <section style="background: linear-gradient(135deg, var(--accent-orange) 0%, #d93025 100%); color: white; text-align: center; border-radius: var(--radius-lg); margin: var(--spacing-xl) auto; padding: var(--spacing-xl) var(--spacing-md); max-width: 1000px; box-shadow: var(--shadow-lg);">
-                    <h2 style="color:white; border:none;">Join the Movement</h2>
-                    <p style="color: rgba(255,255,255,0.9); font-size: 1.1rem;">You don't have to walk this path alone.</p>
-                    <a href="#" class="btn btn-white" style="background:white; color:var(--accent-orange); font-weight:800;" onclick="app.router('signup')">Connect With Us</a>
-                </section>
+        <!-- Hero Section -->
+        <section class="hero">
+            <div class="blob blob-1"></div>
+            <div class="blob blob-2"></div>
+            <div class="hero-slider">
+                <div class="slide"></div>
+                <div class="slide"></div>
+                <div class="slide"></div>
             </div>
-        </div>
+            <div class="hero-overlay"></div>
+            <div class="hero-content">
+                <div class="motto-banner" style="background: rgba(255, 255, 255, 0.15); backdrop-filter: blur(5px); border: 1px solid var(--accent-orange); padding: 0.5rem 1.5rem; border-radius: 50px; display: inline-block; margin-bottom: 2rem; font-size: 0.8rem; font-weight: 700; text-transform: uppercase; letter-spacing: 2px; color: var(--accent-orange);">Grow the Mind. Strengthen the Heart.</div>
+                <h1>Navigate Life with <span style="color: var(--accent-orange);">Clarity</span> & Purpose</h1>
+                <p style="font-size: 1.25rem; color: #e2e8f0; margin-bottom: 2rem; max-width: 700px; margin-left: auto; margin-right: auto;">A transformational platform dedicated to guiding young people toward personal growth, emotional healing, and a life of faith.</p>
+                <button class="btn btn-primary" onclick="app.showModal('signup')">Start Your Journey</button>
+            </div>
+        </section>
 
-        <!-- ================= VIEW: AUTH (LOGIN/SIGNUP) ================= -->
-        <div id="view-login" class="auth-container hidden">
+        <!-- Daily Encouragement -->
+        <section id="daily-encouragement">
             <div class="container">
-                <div class="auth-box">
-                    <h2 class="text-center">Welcome Back</h2>
-                    <p class="text-center">Login to access your dashboard.</p>
-                    <form onsubmit="app.handleLogin(event)">
-                        <div class="form-group">
-                            <label>Username / Email</label>
-                            <input type="text" id="login-email" required placeholder="Enter your email">
+                <div id="daily-post-container"></div>
+            </div>
+        </section>
+
+        <!-- About Section -->
+        <section id="about" class="section-padding reveal">
+            <div class="container">
+                <div class="about-grid">
+                    <div class="about-text">
+                        <h2>Who We Are</h2>
+                        <p><strong>Growth Grid Channel</strong> is a transformational platform dedicated to guiding young people toward personal growth, emotional healing, and living a life of purpose.</p>
+                        <p>We exist to help individuals reshape their mindset, thrive through limiting beliefs, and embrace life with positivity and faith.</p>
+                    </div>
+                    <div class="about-img-placeholder">
+                        <div class="about-card">
+                            <h4>No One Walks Alone</h4>
+                            <p style="margin-bottom: 0; font-size: 0.9rem;">We believe growth is a journey.</p>
                         </div>
-                        <div class="form-group">
-                            <label>Password</label>
-                            <input type="password" id="login-password" required placeholder="Enter password">
-                        </div>
-                        <button type="submit" class="btn btn-primary" style="width:100%;">Login</button>
-                    </form>
-                    <p class="text-center" style="margin-top:1rem; font-size:0.9rem;">
-                        Don't have an account? <a href="#" style="color:var(--primary-blue); font-weight:bold;" onclick="app.router('signup')">Sign Up</a>
-                    </p>
+                    </div>
                 </div>
             </div>
-        </div>
+        </section>
 
-        <div id="view-signup" class="auth-container hidden">
+        <!-- Vision & Mission -->
+        <section id="vision-mission" class="section-padding reveal">
             <div class="container">
-                <div class="auth-box" style="max-width: 600px;">
-                    <h2 class="text-center">Join Growth Grid</h2>
-                    <p class="text-center">Start your journey with us.</p>
-                    <form onsubmit="app.handleSignup(event)">
-                        <div class="form-group">
-                            <label>Full Name</label>
-                            <input type="text" id="signup-name" required>
-                        </div>
-                        <div class="form-group">
-                            <label>Email Address</label>
-                            <input type="email" id="signup-email" required>
-                        </div>
-                        <div class="form-group">
-                            <label>WhatsApp Number</label>
-                            <input type="tel" id="signup-phone" required placeholder="+1 234 567 8900">
-                        </div>
-                        <div class="form-group">
-                            <label>Password</label>
-                            <input type="password" id="signup-password" required>
-                        </div>
-                        <div class="form-group">
-                            <label>Short Bio</label>
-                            <textarea id="signup-bio" rows="3" placeholder="Tell us about yourself..."></textarea>
-                        </div>
-                        <div class="form-group">
-                            <label>Passport Photo</label>
-                            <div class="file-upload-wrapper" onclick="document.getElementById('signup-photo').click()">
-                                <p>Click to upload photo</p>
-                                <input type="file" id="signup-photo" accept="image/*" hidden onchange="app.previewImage(this, 'signup-preview')">
-                                <img id="signup-preview" style="max-width:100px; max-height:100px; border-radius:50%; object-fit:cover; display:none; margin: 10px auto;">
-                            </div>
-                        </div>
-                        <button type="submit" class="btn btn-primary" style="width:100%;">Create Account</button>
-                    </form>
-                    <p class="text-center" style="margin-top:1rem; font-size:0.9rem;">
-                        Already a member? <a href="#" style="color:var(--primary-blue); font-weight:bold;" onclick="app.router('login')">Login</a>
-                    </p>
+                <div class="text-center">
+                    <h2>Our Foundation</h2>
+                    <p style="color: var(--text-muted);">The pillars that support our mission.</p>
+                </div>
+                <div class="vm-grid">
+                    <div class="glass-card">
+                        <div style="font-size: 2rem; margin-bottom: 1rem; color: var(--primary-blue);">👁️</div>
+                        <h3>Our Vision</h3>
+                        <p>To raise a generation of young people who are emotionally healthy, spiritually grounded, and confidently living purposeful lives.</p>
+                    </div>
+                    <div class="glass-card">
+                        <div style="font-size: 2rem; margin-bottom: 1rem; color: var(--primary-blue);">🚀</div>
+                        <h3>Our Mission</h3>
+                        <p>To equip young people with tools they need to navigate life with clarity, courage, and faith.</p>
+                    </div>
                 </div>
             </div>
-        </div>
+        </section>
 
-        <!-- ================= VIEW: MEMBER DASHBOARD ================= -->
-        <div id="view-dashboard" class="dashboard-container hidden">
+        <!-- Focus Areas -->
+        <section id="focus" class="section-padding reveal">
             <div class="container">
-                <h2>Member Dashboard</h2>
-                <div class="dashboard-grid">
-                    <!-- Profile Column -->
-                    <aside>
-                        <div class="profile-card">
-                            <img id="dash-profile-img" src="" alt="Profile" class="profile-img">
-                            <h3 id="dash-name">Member Name</h3>
-                            <p id="dash-bio" style="font-size:0.9rem; color:#666;">User bio...</p>
-                            <hr style="margin:1rem 0; border:0; border-top:1px solid #eee;">
-                            <p><strong>Email:</strong> <br><span id="dash-email"></span></p>
-                            <p><strong>WhatsApp:</strong> <br><span id="dash-phone"></span></p>
-                        </div>
-                    </aside>
-
-                    <!-- Feed Column -->
-                    <section>
-                        <h3 style="margin-bottom:1rem;">All Encouragements</h3>
-                        <div id="member-feed">
-                            <!-- Posts load here -->
-                        </div>
-                    </section>
+                <div class="text-center" style="margin-bottom: 2rem;">
+                    <h2>Our Focus Areas</h2>
+                </div>
+                <div class="focus-grid">
+                    <div class="glass-card focus-card"><h3>Mindset</h3><p>Confidence & Discipline.</p></div>
+                    <div class="glass-card focus-card"><h3>Faith</h3><p>Real-life application.</p></div>
+                    <div class="glass-card focus-card"><h3>Relationships</h3><p>Love & Communication.</p></div>
+                    <div class="glass-card focus-card"><h3>Mental</h3><p>Healing & Strength.</p></div>
+                    <div class="glass-card focus-card"><h3>Youth</h3><p>Direction & Identity.</p></div>
                 </div>
             </div>
+        </section>
+
+        <!-- Call To Action -->
+        <div class="container reveal">
+            <section class="glass-card" style="background: linear-gradient(135deg, var(--accent-orange) 0%, #d93025 100%); color: white; text-align: center; padding: 4rem 2rem; margin: 6rem auto; border:none;">
+                <h2 style="color:white; border:none;">Join the Movement</h2>
+                <p style="color: rgba(255,255,255,0.9); font-size: 1.1rem;">You don't have to walk this path alone.</p>
+                <button class="btn btn-secondary" style="background:white; color:var(--accent-orange); border:none;" onclick="app.showModal('signup')">Connect With Us</button>
+            </section>
         </div>
-
-        <!-- ================= VIEW: ADMIN DASHBOARD ================= -->
-        <div id="view-admin" class="dashboard-container hidden">
-            <div class="container">
-                <div style="display:flex; justify-content:space-between; align-items:center;">
-                    <h2 style="color:var(--accent-orange);">Admin Portal</h2>
-                    <button class="btn btn-secondary" onclick="app.logout()">Logout</button>
-                </div>
-                
-                <div class="dashboard-grid">
-                    <!-- Create Post Form -->
-                    <aside>
-                        <div class="auth-box" style="margin:0; max-width:100%;">
-                            <h3>Create Encouragement</h3>
-                            <form onsubmit="app.createPost(event)">
-                                <div class="form-group">
-                                    <label>Topic</label>
-                                    <select id="admin-topic" required>
-                                        <option value="Mindset">Mindset & Growth</option>
-                                        <option value="Faith">Faith & Spiritual</option>
-                                        <option value="Relationships">Relationships</option>
-                                        <option value="Mental Health">Mental & Emotional</option>
-                                        <option value="Youth">Youth Empowerment</option>
-                                    </select>
-                                </div>
-                                <div class="form-group">
-                                    <label>Title</label>
-                                    <input type="text" id="admin-title" required>
-                                </div>
-                                <div class="form-group">
-                                    <label>Image</label>
-                                    <input type="file" id="admin-image" accept="image/*" required>
-                                </div>
-                                <div class="form-group">
-                                    <label>Caption</label>
-                                    <div class="admin-toolbar">
-                                        <button type="button" class="toolbar-btn" onclick="document.execCommand('bold',false,null)">B</button>
-                                        <button type="button" class="toolbar-btn" onclick="document.execCommand('italic',false,null)">I</button>
-                                    </div>
-                                    <div id="editor" contenteditable="true"></div>
-                                </div>
-                                <div class="form-group">
-                                    <label>
-                                        <input type="checkbox" id="admin-is-daily"> Set as Current Daily Encouragement
-                                    </label>
-                                </div>
-                                <button type="submit" class="btn btn-primary" style="width:100%;">Post Encouragement</button>
-                            </form>
-                        </div>
-                    </aside>
-
-                    <!-- Manage Posts -->
-                    <section>
-                        <h3>Manage Posts</h3>
-                        <div id="admin-feed"></div>
-                    </section>
-                </div>
-            </div>
-        </div>
-
     </main>
 
     <!-- Footer -->
     <footer>
         <div class="container">
-            <a href="#" class="footer-logo">GROWTH<span>GRID</span></a>
+            <a href="#" class="footer-logo" style="font-size: 1.5rem; font-weight: 800; color: white; margin-bottom: 1rem; display: inline-block;">GROWTH<span style="color:var(--accent-orange)">GRID</span></a>
             <div class="footer-links">
-                <a href="#" onclick="app.router('home')">About Us</a>
-                <a href="#" onclick="app.router('home')">Mission</a>
-                <a href="#" onclick="app.router('home')">Resources</a>
-                <a href="#" onclick="app.router('home')">Contact</a>
+                <a href="#" onclick="app.closePortal()">Home</a>
+                <a href="#about" onclick="app.closePortal()">About Us</a>
+                <a href="#contact">Contact</a>
             </div>
-            <p class="copyright">&copy; 2023 Growth Grid Channel. All rights reserved.</p>
+            <p style="font-size: 0.9rem; opacity: 0.7;">&copy; 2023 Growth Grid Channel. All rights reserved.</p>
         </div>
     </footer>
+
+    <!-- ================= MODALS (POPUPS) ================= -->
+    
+    <!-- Login Modal -->
+    <div id="modal-login" class="modal-overlay">
+        <div class="modal-box">
+            <span class="close-modal" onclick="app.hideModal()">&times;</span>
+            <h2 class="text-center">Welcome Back</h2>
+            <p class="text-center" style="margin-bottom:2rem;">Login to access your portal.</p>
+            <form onsubmit="app.handleLogin(event)">
+                <div class="form-group"><label>Email / Username</label><input type="text" id="login-email" required></div>
+                <div class="form-group"><label>Password</label><input type="password" id="login-password" required></div>
+                <button type="submit" class="btn btn-primary" style="width:100%;">Login</button>
+            </form>
+            <p class="text-center" style="margin-top:1.5rem; font-size:0.9rem;">
+                New here? <a href="#" style="color:var(--primary-blue); font-weight:bold;" onclick="app.showModal('signup')">Create Account</a>
+            </p>
+        </div>
+    </div>
+
+    <!-- Signup Modal -->
+    <div id="modal-signup" class="modal-overlay">
+        <div class="modal-box" style="max-width: 600px;">
+            <span class="close-modal" onclick="app.hideModal()">&times;</span>
+            <h2 class="text-center">Join Growth Grid</h2>
+            <p class="text-center" style="margin-bottom:2rem;">Start your journey with us.</p>
+            <form onsubmit="app.handleSignup(event)">
+                <div class="form-group"><label>Full Name</label><input type="text" id="signup-name" required></div>
+                <div class="form-group"><label>Email</label><input type="email" id="signup-email" required></div>
+                <div class="form-group"><label>WhatsApp</label><input type="tel" id="signup-phone" required></div>
+                <div class="form-group"><label>Password</label><input type="password" id="signup-password" required></div>
+                <div class="form-group"><label>Bio</label><textarea id="signup-bio" rows="3"></textarea></div>
+                <div class="form-group">
+                    <label>Passport Photo</label>
+                    <div class="glass-card" style="padding:1rem; text-align:center; cursor:pointer; border:1px dashed var(--primary-blue);" onclick="document.getElementById('signup-photo').click()">
+                        <p style="margin:0;">Click to upload</p>
+                        <input type="file" id="signup-photo" accept="image/*" hidden onchange="app.previewImage(this, 'signup-preview')">
+                        <img id="signup-preview" style="max-width:100px; max-height:100px; border-radius:50%; object-fit:cover; display:none; margin:10px auto;">
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-primary" style="width:100%;">Create Account</button>
+            </form>
+            <p class="text-center" style="margin-top:1.5rem; font-size:0.9rem;">
+                Have an account? <a href="#" style="color:var(--primary-blue); font-weight:bold;" onclick="app.showModal('login')">Login</a>
+            </p>
+        </div>
+    </div>
+
+    <!-- ================= PORTALS (DASHBOARDS) ================= -->
+    <!-- Full screen overlay that covers the main site when logged in -->
+    <div id="portal-overlay" class="portal-overlay">
+        
+        <!-- Portal Header -->
+        <div class="portal-header">
+            <div style="font-weight:800; font-size:1.2rem; display:flex; align-items:center; gap:0.5rem;">
+                GROWTH<span style="color:var(--accent-orange)">GRID</span> <span style="font-size:0.8rem; opacity:0.8; font-weight:400; margin-left:10px; background:rgba(255,255,255,0.2); padding:2px 8px; border-radius:4px;" id="portal-badge">Member Portal</span>
+            </div>
+            <div style="display:flex; gap:1rem; align-items:center;">
+                <span id="portal-user-name" style="font-weight:600;"></span>
+                <button class="btn btn-secondary" style="padding:0.5rem 1.2rem; font-size:0.8rem; border-color:white; color:white;" onclick="app.logout()">Exit Portal</button>
+            </div>
+        </div>
+
+        <!-- Member Dashboard View -->
+        <div id="member-dashboard" class="dashboard-container" style="display:none;">
+            <aside>
+                <div class="profile-card">
+                    <img id="dash-profile-img" src="" alt="Profile" class="profile-img">
+                    <h3 id="dash-name">Member Name</h3>
+                    <p id="dash-bio" style="font-size:0.9rem; color:#666; margin-bottom:1rem;">User bio...</p>
+                    <hr style="margin:1rem 0; border:0; border-top:1px solid #eee;">
+                    <p style="text-align:left;"><strong>Email:</strong> <br><span id="dash-email" style="font-size:0.9rem; color:#555;"></span></p>
+                    <p style="text-align:left;"><strong>WhatsApp:</strong> <br><span id="dash-phone" style="font-size:0.9rem; color:#555;"></span></p>
+                </div>
+            </aside>
+            <section>
+                <h3>Your Encouragement Feed</h3>
+                <div id="member-feed" style="margin-top:2rem;"></div>
+            </section>
+        </div>
+
+        <!-- Admin Portal View -->
+        <div id="admin-dashboard" class="dashboard-container" style="display:none;">
+            <aside>
+                <div class="profile-card">
+                    <div style="font-size:3rem; margin-bottom:1rem;">🛡️</div>
+                    <h3>Admin Portal</h3>
+                    <p style="font-size:0.9rem; color:#666;">Manage posts and users.</p>
+                </div>
+                <div class="glass-card" style="padding:1.5rem; margin-top:2rem;">
+                    <h4>Create Post</h4>
+                    <form onsubmit="app.createPost(event)">
+                        <div class="form-group" style="margin-bottom:0.5rem;"><label>Topic</label><select id="admin-topic"><option value="Mindset">Mindset</option><option value="Faith">Faith</option><option value="Relationships">Relationships</option><option value="Mental Health">Mental</option><option value="Youth">Youth</option></select></div>
+                        <div class="form-group" style="margin-bottom:0.5rem;"><label>Title</label><input type="text" id="admin-title" required></div>
+                        <div class="form-group" style="margin-bottom:0.5rem;"><label>Image</label><input type="file" id="admin-image" accept="image/*" required></div>
+                        <div class="form-group" style="margin-bottom:0.5rem;"><label>Caption</label>
+                            <div class="admin-toolbar"><button type="button" class="toolbar-btn" onclick="document.execCommand('bold',false,null)">B</button><button type="button" class="toolbar-btn" onclick="document.execCommand('italic',false,null)">I</button></div>
+                            <div id="editor" contenteditable="true"></div>
+                        </div>
+                        <div class="form-group" style="margin-bottom:1rem;">
+                            <label style="display:flex; align-items:center; gap:10px; cursor:pointer;">
+                                <input type="checkbox" id="admin-is-daily" style="width:auto;"> Set as Daily Encouragement
+                            </label>
+                        </div>
+                        <button type="submit" class="btn btn-primary" style="width:100%;">Post</button>
+                    </form>
+                </div>
+            </aside>
+            <section>
+                <h3>Manage Posts</h3>
+                <div id="admin-feed" style="margin-top:2rem;"></div>
+            </section>
+        </div>
+
+    </div>
 
     <!-- JAVASCRIPT LOGIC -->
     <script>
@@ -991,63 +640,98 @@
             },
 
             init: function() {
-                // Check if user is logged in
                 const storedUser = localStorage.getItem('currentUser');
                 if (storedUser) {
                     this.data.currentUser = JSON.parse(storedUser);
-                    this.updateNav();
+                    this.updatePublicNav();
+                    // Auto-enter portal if logged in
+                    if(this.data.currentUser.isAdmin) this.openPortal('admin');
+                    else this.openPortal('member');
+                } else {
+                    this.updatePublicNav();
                 }
-                this.router('home');
-                this.loadDailyEncouragement();
                 
-                // Mobile menu toggle
+                this.loadDailyEncouragement();
+                this.initScrollAnimation();
+                
                 document.getElementById('menuBtn').addEventListener('click', () => {
-                    document.getElementById('navLinks').classList.toggle('active');
+                    document.getElementById('main-nav-links').classList.toggle('active');
+                });
+                
+                window.addEventListener('scroll', () => {
+                    const header = document.getElementById('main-header');
+                    if(window.scrollY > 50) header.classList.add('scrolled');
+                    else header.classList.remove('scrolled');
                 });
             },
+            
+            initScrollAnimation: function() {
+                const observer = new IntersectionObserver((entries) => {
+                    entries.forEach(entry => {
+                        if(entry.isIntersecting) entry.target.classList.add('active');
+                    });
+                }, { threshold: 0.1 });
+                document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+            },
 
-            router: function(viewName) {
-                // Hide all views
-                document.querySelectorAll('#main-content > div').forEach(el => el.classList.add('hidden'));
+            // --- MODAL LOGIC ---
+            showModal: function(type) {
+                document.querySelectorAll('.modal-overlay').forEach(el => el.classList.remove('active'));
+                const modal = document.getElementById(`modal-${type}`);
+                if(modal) modal.classList.add('active');
+            },
+
+            hideModal: function() {
+                document.querySelectorAll('.modal-overlay').forEach(el => el.classList.remove('active'));
+            },
+
+            // --- PORTAL LOGIC ---
+            openPortal: function(type) {
+                const overlay = document.getElementById('portal-overlay');
+                const memberView = document.getElementById('member-dashboard');
+                const adminView = document.getElementById('admin-dashboard');
                 
-                // Show requested view
-                const target = document.getElementById(`view-${viewName}`);
-                if (target) {
-                    target.classList.remove('hidden');
-                    window.scrollTo(0,0);
-                }
-
-                // If dashboard, load data
-                if (viewName === 'dashboard') {
-                    if (!this.data.currentUser) return this.router('login');
+                overlay.classList.add('active');
+                
+                if(type === 'member') {
+                    memberView.style.display = 'grid';
+                    adminView.style.display = 'none';
+                    document.getElementById('portal-badge').textContent = 'Member Portal';
                     this.renderMemberDashboard();
-                }
-                if (viewName === 'admin') {
-                    if (!this.data.currentUser || !this.data.currentUser.isAdmin) return this.router('login');
+                } else {
+                    memberView.style.display = 'none';
+                    adminView.style.display = 'grid';
+                    document.getElementById('portal-badge').textContent = 'Admin Portal';
+                    document.getElementById('portal-badge').style.background = 'var(--accent-orange)';
                     this.renderAdminDashboard();
                 }
+                
+                document.getElementById('portal-user-name').textContent = this.data.currentUser.name;
+                this.hideModal();
+                window.scrollTo(0,0);
             },
 
-            updateNav: function() {
+            closePortal: function() {
+                document.getElementById('portal-overlay').classList.remove('active');
+            },
+
+            // --- AUTH LOGIC ---
+            updatePublicNav: function() {
                 const user = this.data.currentUser;
-                const guestNav = document.getElementById('nav-guest');
-                const memberNav = document.getElementById('nav-member');
-                const adminNav = document.getElementById('nav-admin');
-
-                guestNav.style.display = 'none';
-                memberNav.style.display = 'none';
-                adminNav.style.display = 'none';
-
+                const container = document.getElementById('public-nav-auth');
+                
                 if (!user) {
-                    guestNav.style.display = 'flex';
-                } else if (user.isAdmin) {
-                    adminNav.style.display = 'flex';
+                    container.innerHTML = `
+                        <a href="#" onclick="app.showModal('login')" style="color:var(--primary-blue);">Login</a>
+                        <button class="btn btn-primary" onclick="app.showModal('signup')" style="padding:0.4rem 1rem;">Join Us</button>
+                    `;
                 } else {
-                    memberNav.style.display = 'flex';
+                    container.innerHTML = `
+                        <button class="btn btn-secondary" onclick="app.openPortal('${user.isAdmin ? 'admin' : 'member'}')" style="padding:0.4rem 1rem; border:none; background:rgba(25,0,255,0.1); color:var(--primary-blue);">Enter Portal</button>
+                    `;
                 }
             },
 
-            // --- AUTHENTICATION ---
             handleSignup: function(e) {
                 e.preventDefault();
                 const name = document.getElementById('signup-name').value;
@@ -1057,38 +741,25 @@
                 const bio = document.getElementById('signup-bio').value;
                 const photoInput = document.getElementById('signup-photo');
 
-                // Simple validation
-                if (this.data.users.find(u => u.email === email)) {
-                    alert('Email already exists!');
-                    return;
-                }
+                if (this.data.users.find(u => u.email === email)) { alert('Email exists!'); return; }
 
                 const reader = new FileReader();
                 reader.onload = (event) => {
                     const newUser = {
-                        id: Date.now(),
-                        name, email, phone, password, bio,
+                        id: Date.now(), name, email, phone, password, bio,
                         photo: photoInput.files[0] ? event.target.result : 'https://picsum.photos/150',
-                        isAdmin: false,
-                        joined: new Date().toISOString()
+                        isAdmin: false, joined: new Date().toISOString()
                     };
-
                     this.data.users.push(newUser);
                     this.saveUsers();
-                    
-                    // Auto login
                     this.data.currentUser = newUser;
                     localStorage.setItem('currentUser', JSON.stringify(newUser));
-                    this.updateNav();
-                    this.router('dashboard');
+                    this.updatePublicNav();
+                    this.openPortal('member');
                 };
                 
-                if(photoInput.files[0]){
-                    reader.readAsDataURL(photoInput.files[0]);
-                } else {
-                    // Trigger with empty string if no photo
-                    reader.readAsDataURL(new Blob([""], { type: 'image/png' })); 
-                }
+                if(photoInput.files[0]) reader.readAsDataURL(photoInput.files[0]);
+                else reader.readAsDataURL(new Blob([""], { type: 'image/png' })); 
             },
 
             handleLogin: function(e) {
@@ -1096,12 +767,11 @@
                 const email = document.getElementById('login-email').value;
                 const password = document.getElementById('login-password').value;
 
-                // Hardcoded Admin
                 if (email === 'admin' && password === 'admin123') {
                     this.data.currentUser = { name: 'Administrator', email: 'admin', isAdmin: true };
                     localStorage.setItem('currentUser', JSON.stringify(this.data.currentUser));
-                    this.updateNav();
-                    this.router('admin');
+                    this.updatePublicNav();
+                    this.openPortal('admin');
                     return;
                 }
 
@@ -1109,37 +779,33 @@
                 if (user) {
                     this.data.currentUser = user;
                     localStorage.setItem('currentUser', JSON.stringify(user));
-                    this.updateNav();
-                    this.router('dashboard');
+                    this.updatePublicNav();
+                    this.openPortal('member');
                 } else {
-                    alert('Invalid credentials. (Hint: admin/admin123)');
+                    alert('Invalid credentials. (admin/admin123)');
                 }
             },
 
             logout: function() {
                 this.data.currentUser = null;
                 localStorage.removeItem('currentUser');
-                this.updateNav();
-                this.router('home');
+                this.updatePublicNav();
+                this.closePortal();
             },
 
-            saveUsers: function() {
-                localStorage.setItem('users', JSON.stringify(this.data.users));
-            },
-
+            // --- DATA & RENDERING ---
+            saveUsers: function() { localStorage.setItem('users', JSON.stringify(this.data.users)); },
             previewImage: function(input, imgId) {
                 if (input.files && input.files[0]) {
                     const reader = new FileReader();
                     reader.onload = function(e) {
                         const img = document.getElementById(imgId);
-                        img.src = e.target.result;
-                        img.style.display = 'block';
+                        img.src = e.target.result; img.style.display = 'block';
                     }
                     reader.readAsDataURL(input.files[0]);
                 }
             },
 
-            // --- ADMIN / POSTS ---
             createPost: function(e) {
                 e.preventDefault();
                 const topic = document.getElementById('admin-topic').value;
@@ -1150,44 +816,24 @@
 
                 const reader = new FileReader();
                 reader.onload = (evt) => {
-                    const newPost = {
-                        id: Date.now(),
-                        topic, title, content,
-                        image: evt.target.result,
-                        isDaily,
-                        date: new Date().toLocaleDateString(),
-                        author: 'Admin'
-                    };
-
-                    // If marked as daily, unmark others
-                    if (isDaily) {
-                        this.data.posts.forEach(p => p.isDaily = false);
-                    }
-
+                    const newPost = { id: Date.now(), topic, title, content, image: evt.target.result, isDaily, date: new Date().toLocaleDateString(), author: 'Admin' };
+                    if (isDaily) this.data.posts.forEach(p => p.isDaily = false);
                     this.data.posts.unshift(newPost);
                     this.savePosts();
-                    
-                    // Reset form
-                    e.target.reset();
-                    document.getElementById('editor').innerHTML = '';
-                    alert('Encouragement Posted!');
-                    this.loadDailyEncouragement();
-                    this.renderAdminDashboard();
+                    e.target.reset(); document.getElementById('editor').innerHTML = '';
+                    alert('Posted!');
+                    this.loadDailyEncouragement(); this.renderAdminDashboard();
                 };
-
                 reader.readAsDataURL(fileInput.files[0]);
             },
 
             savePosts: function() {
-                try {
-                    localStorage.setItem('posts', JSON.stringify(this.data.posts));
-                } catch (e) {
-                    alert("Storage full! Cannot save large images.");
-                }
+                try { localStorage.setItem('posts', JSON.stringify(this.data.posts)); } 
+                catch (e) { alert("Storage full!"); }
             },
 
             deletePost: function(id) {
-                if(confirm('Delete this post?')) {
+                if(confirm('Delete?')) {
                     this.data.posts = this.data.posts.filter(p => p.id !== id);
                     this.savePosts();
                     this.loadDailyEncouragement();
@@ -1195,33 +841,24 @@
                 }
             },
 
-            // --- RENDERING ---
             loadDailyEncouragement: function() {
                 const container = document.getElementById('daily-post-container');
                 const dailyPost = this.data.posts.find(p => p.isDaily);
 
                 if (!dailyPost) {
-                    container.innerHTML = `
-                        <div class="daily-card">
-                            <div class="daily-content" style="width:100%; text-align:center; padding:3rem;">
-                                <h3>No Daily Encouragement Yet</h3>
-                                <p>Check back later for today's boost.</p>
-                            </div>
-                        </div>`;
+                    container.innerHTML = `<div class="daily-card"><div class="daily-content" style="width:100%; text-align:center; padding:3rem;"><h3>No Encouragement</h3></div></div>`;
                     return;
                 }
 
                 container.innerHTML = `
-                    <div class="daily-card">
+                    <div class="daily-card reveal active">
                         <div class="daily-img" style="background-image: url('${dailyPost.image}')"></div>
                         <div class="daily-content">
-                            <span class="topic-tag">${dailyPost.topic}</span>
+                            <span style="background:rgba(25,0,255,0.1); color:var(--primary-blue); padding:4px 12px; border-radius:20px; font-size:0.8rem; font-weight:700; align-self:flex-start; margin-bottom:1rem;">${dailyPost.topic}</span>
                             <h3>${dailyPost.title}</h3>
-                            <p>${dailyPost.content}</p>
-                            <p style="margin-top:1rem; font-size:0.8rem; color:#999;">Posted on ${dailyPost.date}</p>
+                            <p style="font-size:1rem; color:#555;">${dailyPost.content}</p>
                         </div>
-                    </div>
-                `;
+                    </div>`;
             },
 
             renderMemberDashboard: function() {
@@ -1229,57 +866,36 @@
                 document.getElementById('dash-name').textContent = user.name;
                 document.getElementById('dash-email').textContent = user.email;
                 document.getElementById('dash-phone').textContent = user.phone;
-                document.getElementById('dash-bio').textContent = user.bio || 'No bio provided.';
-                document.getElementById('dash-profile-img').src = user.photo || 'https://picsum.photos/150';
+                document.getElementById('dash-bio').textContent = user.bio;
+                document.getElementById('dash-profile-img').src = user.photo;
 
                 const feed = document.getElementById('member-feed');
-                feed.innerHTML = '';
-
-                if(this.data.posts.length === 0) {
-                    feed.innerHTML = '<p>No posts yet.</p>';
-                    return;
-                }
-
-                this.data.posts.forEach(post => {
-                    feed.innerHTML += `
-                        <div class="feed-card">
-                            <div class="feed-header">
-                                <span class="topic-tag">${post.topic}</span>
-                                <h4 style="margin:0;">${post.title}</h4>
-                            </div>
-                            <img src="${post.image}" class="feed-img">
-                            <div>${post.content}</div>
-                            <div style="font-size:0.8rem; color:#999; margin-top:0.5rem;">${post.date}</div>
+                feed.innerHTML = this.data.posts.length ? this.data.posts.map(post => `
+                    <div class="feed-card">
+                        <div style="display:flex; justify-content:space-between; margin-bottom:0.5rem;">
+                            <span style="color:var(--primary-blue); font-weight:bold;">${post.topic}</span>
+                            <span style="font-size:0.8rem; color:#999;">${post.date}</span>
                         </div>
-                    `;
-                });
+                        <h3>${post.title}</h3>
+                        <img src="${post.image}" class="feed-img">
+                        <div>${post.content}</div>
+                    </div>
+                `).join('') : '<p>No posts yet.</p>';
             },
 
             renderAdminDashboard: function() {
                 const feed = document.getElementById('admin-feed');
-                feed.innerHTML = '';
-
-                if(this.data.posts.length === 0) {
-                    feed.innerHTML = '<p>No posts yet.</p>';
-                    return;
-                }
-
-                this.data.posts.forEach(post => {
-                    feed.innerHTML += `
-                        <div class="feed-card">
-                            <div style="display:flex; justify-content:space-between;">
-                                <span class="topic-tag">${post.topic}</span>
-                                ${post.isDaily ? '<span style="color:green; font-weight:bold;">Current Daily</span>' : ''}
-                            </div>
-                            <h4>${post.title}</h4>
-                            <div style="margin-bottom:1rem;">
-                                <img src="${post.image}" style="max-width:100px; height:auto; border-radius:4px;">
-                            </div>
-                            <button class="btn btn-secondary" style="padding:0.2rem 1rem; font-size:0.8rem;" onclick="app.deletePost(${post.id})">Delete</button>
-                            <button class="btn btn-primary" style="padding:0.2rem 1rem; font-size:0.8rem;" onclick="app.setAsDaily(${post.id})">Set as Daily</button>
+                feed.innerHTML = this.data.posts.length ? this.data.posts.map(post => `
+                    <div class="glass-card" style="padding:1.5rem; margin-bottom:1.5rem;">
+                        <div style="display:flex; justify-content:space-between; margin-bottom:0.5rem;">
+                            <span style="font-weight:bold;">${post.topic}</span>
+                            ${post.isDaily ? '<span style="color:green;">Daily</span>' : ''}
                         </div>
-                    `;
-                });
+                        <h4>${post.title}</h4>
+                        <button class="btn btn-secondary" style="padding:0.2rem 1rem; font-size:0.8rem;" onclick="app.deletePost(${post.id})">Delete</button>
+                        <button class="btn btn-primary" style="padding:0.2rem 1rem; font-size:0.8rem;" onclick="app.setAsDaily(${post.id})">Set Daily</button>
+                    </div>
+                `).join('') : '<p>No posts yet.</p>';
             },
 
             setAsDaily: function(id) {
@@ -1292,7 +908,6 @@
             }
         };
 
-        // Initialize App on Load
         window.addEventListener('DOMContentLoaded', () => app.init());
     </script>
 </body>
